@@ -1,7 +1,8 @@
 // utils
 import Cookies from 'js-cookie';
 import PropTypes from 'prop-types';
-import { useMemo, useEffect, useReducer, createContext } from 'react';
+import { useSnackbar } from 'notistack';
+import { useMemo, useEffect, useReducer, useCallback, createContext } from 'react';
 
 import { JWT_COOKIE } from 'src/utils/constant';
 import { setSession, isValidToken } from 'src/utils/jwt';
@@ -43,6 +44,15 @@ const handlers = {
       user,
     };
   },
+  REGISTER: (state, action) => {
+    const { user } = action.payload;
+
+    return {
+      ...state,
+      isAuthenticated: true,
+      user,
+    };
+  },
   LOGOUT: (state) => ({
     ...state,
     isAuthenticated: false,
@@ -58,6 +68,7 @@ const AuthContext = createContext({
   method: 'jwt',
   initialize: () => Promise.resolve(),
   signIn: () => Promise.resolve(),
+  register: () => Promise.resolve(),
   signInWithGoogle: () => Promise.resolve(),
   signOut: () => Promise.resolve(),
   changePassword: () => Promise.resolve(),
@@ -66,12 +77,17 @@ const AuthContext = createContext({
 
 const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const { enqueueSnackbar } = useSnackbar();
 
-  const signIn = async (email, password) => {
+  const signIn = useCallback(async (email, password) => {
     try {
       const res = await AuthAPI.login(email, password);
       const { user, jwt } = res.data;
       user.token = jwt;
+
+      enqueueSnackbar('Đăng nhập thành công!', {
+        variant: 'success',
+      });
 
       setSession(jwt);
       dispatch({
@@ -83,7 +99,29 @@ const AuthProvider = ({ children }) => {
     } catch (err) {
       return err;
     }
-  };
+  }, [enqueueSnackbar]);
+
+  const register = useCallback(async (data) => {
+    try {
+      const res = await AuthAPI.register(data);
+      const { user, jwt } = res.data;
+      user.token = jwt;
+
+      enqueueSnackbar('Đăng Ký thành công!', {
+        variant: 'success',
+      });
+
+      setSession(jwt);
+      dispatch({
+        type: 'REGISTER',
+        payload: {
+          user,
+        },
+      });
+    } catch (err) {
+      return err;
+    }
+  }, [enqueueSnackbar]);
 
   const signInWithGoogle = async (accessToken) => {
     try {
@@ -168,12 +206,13 @@ const AuthProvider = ({ children }) => {
       method: 'jwt',
       initialize,
       signIn,
+      register,
       signInWithGoogle,
       signOut,
       changePassword,
       updateProfile,
     }),
-    [state]
+    [state, signIn, register]
   );
 
   useEffect(() => {

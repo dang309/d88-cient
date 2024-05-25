@@ -22,6 +22,7 @@ import {
 } from '@mui/material';
 
 import useAuth from 'src/hooks/auth';
+import useEventBus from 'src/hooks/event-bus';
 
 import Logo from '../logo';
 import Iconify from '../iconify';
@@ -33,12 +34,17 @@ const TAB = {
 
 export default function AuthenticationDialog() {
   const theme = useTheme();
-  const { signIn } = useAuth();
-  const { control, handleSubmit } = useForm({
+  const { signIn, register } = useAuth();
+  const { $on } = useEventBus();
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm({
     defaultValues: {
       username: '',
+      email: '',
       password: '',
-      phone: '',
     },
   });
 
@@ -47,14 +53,20 @@ export default function AuthenticationDialog() {
   const [showPassword, setShowPassword] = React.useState(false);
 
   const onSubmit = handleSubmit(async (data) => {
-    await signIn(data.username, data.password)  
+    if (tab === TAB.LOGIN) {
+      await signIn(data.username, data.password);
+    } else if (tab === TAB.REGISTER) {
+      await register(data);
+    }
+
+    onClose()
   });
 
-  const handleClickOpen = () => {
+  const onOpen = () => {
     setOpen(true);
   };
 
-  const handleClose = () => {
+  const onClose = () => {
     setOpen(false);
   };
 
@@ -69,7 +81,7 @@ export default function AuthenticationDialog() {
           control={control}
           name="username"
           render={({ field: { onChange, value } }) => (
-            <TextField label="Tên" value={value} onChange={onChange} />
+            <TextField label="Tên" required value={value} onChange={onChange} />
           )}
         />
 
@@ -107,7 +119,8 @@ export default function AuthenticationDialog() {
           size="large"
           variant="contained"
           color="inherit"
-          onClick={onSubmit}
+          type="submit"
+          loading={isSubmitting}
         >
           Đăng nhập
         </LoadingButton>
@@ -115,102 +128,123 @@ export default function AuthenticationDialog() {
     </Box>
   );
 
-  // const registerForm = (
-  //   <Stack spacing={2} sx={{ pt: 2 }}>
-  //     <TextField
-  //       name="username"
-  //       label="Tên"
-  //       value={authData.username}
-  //       onChange={(e) => onChangeAuthData('username', e.target.value)}
-  //     />
+  const registerForm = (
+    <Stack spacing={2} sx={{ pt: 2 }}>
+      <Controller
+        control={control}
+        name="username"
+        render={({ field: { onChange, value } }) => (
+          <TextField label="Tên" autoComplete="off" value={value} onChange={onChange} />
+        )}
+      />
 
-  //     <TextField
-  //       name="phone"
-  //       label="Số điện thoại"
-  //       value={authData.phone}
-  //       onChange={(e) => onChangeAuthData('phone', e.target.value)}
-  //     />
+      <Controller
+        control={control}
+        name="email"
+        render={({ field: { onChange, value } }) => (
+          <TextField label="Email" type="email" value={value} onChange={onChange} />
+        )}
+      />
 
-  //     <TextField
-  //       name="password"
-  //       label="Mật khẩu"
-  //       type={showPassword ? 'text' : 'password'}
-  //       value={authData.password}
-  //       onChange={(e) => onChangeAuthData('password', e.target.value)}
-  //       InputProps={{
-  //         endAdornment: (
-  //           <InputAdornment position="end">
-  //             <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-  //               <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
-  //             </IconButton>
-  //           </InputAdornment>
-  //         ),
-  //       }}
-  //     />
+      <Controller
+        control={control}
+        name="password"
+        render={({ field: { onChange, value } }) => (
+          <TextField
+            label="Mật khẩu"
+            type={showPassword ? 'text' : 'password'}
+            value={value}
+            onChange={onChange}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                    <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        )}
+      />
 
-  //     <LoadingButton
-  //       fullWidth
-  //       size="large"
-  //       type="submit"
-  //       variant="contained"
-  //       color="inherit"
-  //       onClick={onSubmit}
-  //     >
-  //       Đăng ký
-  //     </LoadingButton>
-  //   </Stack>
-  // );
+      <LoadingButton
+        fullWidth
+        size="large"
+        type="submit"
+        variant="contained"
+        color="inherit"
+        loading={isSubmitting}
+      >
+        Đăng ký
+      </LoadingButton>
+    </Stack>
+  );
+
+  React.useEffect(() => {
+    $on('@dialog.auth.action.open', () => {
+      onOpen();
+    });
+  }, [$on]);
 
   return (
-    <>
-      <Button variant="outlined" onClick={handleClickOpen}>
-        Đăng nhập
-      </Button>
-      <Dialog
-        maxWidth="xs"
-        fullWidth
-        open={open}
-        onClose={handleClose}
-        // PaperProps={{
-        //   component: 'form',
-        //   onSubmit,
-        // }}
-      >
-        <DialogTitle>
-          <Logo />
-        </DialogTitle>
-        <DialogContent>
-          <Tabs value={tab} onChange={onChangeTab} aria-label="basic tabs example">
-            <Tab label="Đăng nhập" />
-            <Tab label="Đăng ký" />
-          </Tabs>
+    <Dialog
+      maxWidth="xs"
+      fullWidth
+      open={open}
+      onClose={onClose}
+      PaperProps={{
+        component: 'form',
+        onSubmit,
+      }}
+    >
+      <DialogTitle>
+        <Logo />
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{
+            position: 'absolute',
+            right: 16,
+            top: 16,
+          }}
+        >
+          <Iconify icon="material-symbols:close" />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent>
+        <Tabs value={tab} onChange={onChangeTab} aria-label="basic tabs example">
+          <Tab label="Đăng nhập" />
+          <Tab label="Đăng ký" />
+        </Tabs>
 
+        <Box sx={{ pt: 2 }}>
           {tab === TAB.LOGIN && loginForm}
 
-          {/* {tab === TAB.REGISTER && registerForm} */}
+          {tab === TAB.REGISTER && registerForm}
+        </Box>
 
-          <Divider sx={{ my: 3 }}>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              Hoặc
-            </Typography>
-          </Divider>
+        <Divider sx={{ my: 3 }}>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            Hoặc
+          </Typography>
+        </Divider>
 
-          <Stack direction="row">
-            <Button
-              fullWidth
-              size="large"
-              color="inherit"
-              variant="outlined"
-              type='link'
-              href='http://localhost:1337/api/connect/google'
-              startIcon={<Iconify icon="eva:google-fill" color="#DF3E30" />}
-              sx={{ borderColor: alpha(theme.palette.grey[500], 0.16) }}
-            >
-              Đăng nhập bằng Google
-            </Button>
-          </Stack>
-        </DialogContent>
-      </Dialog>
-    </>
+        <Stack direction="row">
+          <Button
+            fullWidth
+            size="large"
+            color="inherit"
+            variant="outlined"
+            type="link"
+            href="http://localhost:1337/api/connect/google"
+            startIcon={<Iconify icon="eva:google-fill" color="#DF3E30" />}
+            sx={{ borderColor: alpha(theme.palette.grey[500], 0.16) }}
+          >
+            Đăng nhập bằng Google
+          </Button>
+        </Stack>
+      </DialogContent>
+    </Dialog>
   );
 }

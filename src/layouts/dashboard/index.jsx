@@ -3,6 +3,10 @@ import PropTypes from 'prop-types';
 
 import Box from '@mui/material/Box';
 
+import BetDialog from 'src/components/@dialogs/bet';
+import RechargeDialog from 'src/components/@dialogs/recharge';
+import AuthenticationDialog from 'src/components/@dialogs/authentication';
+
 import Nav from './nav';
 import Main from './main';
 import Header from './header';
@@ -26,6 +30,10 @@ export default function DashboardLayout({ children }) {
         <Nav openNav={openNav} onCloseNav={() => setOpenNav(false)} />
 
         <Main>{children}</Main>
+
+        <RechargeDialog />
+        <AuthenticationDialog />
+        <BetDialog />
       </Box>
     </>
   );

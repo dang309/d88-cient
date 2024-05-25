@@ -2,34 +2,36 @@ import PropTypes from 'prop-types';
 
 import Stack from '@mui/material/Stack';
 import AppBar from '@mui/material/AppBar';
-import { Container } from '@mui/material';
 import Toolbar from '@mui/material/Toolbar';
 import { useTheme } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
+import { Button, Container } from '@mui/material';
 
 import useAuth from 'src/hooks/auth';
+import useEventBus from 'src/hooks/event-bus';
 import { useResponsive } from 'src/hooks/use-responsive';
 
 import { bgBlur } from 'src/theme/css';
 
 import Logo from 'src/components/logo';
 import Iconify from 'src/components/iconify';
-import RechargeDialog from 'src/components/@dialogs/recharge';
-import AuthenticationDialog from 'src/components/@dialogs/authentication';
 
 import { NavItem } from './nav';
 import { HEADER } from './config-layout';
 import navConfig from './config-navigation';
 import AccountPopover from './common/account-popover';
-import NotificationsPopover from './common/notifications-popover';
 
 // ----------------------------------------------------------------------
 
 export default function Header({ onOpenNav }) {
   const theme = useTheme();
   const { user } = useAuth();
+  const { $emit } = useEventBus();
 
   const downLg = useResponsive('down', 'lg');
+
+  const onOpenRechargeDialog = () => $emit('@dialog.recharge.action.open');
+  const onOpenAuthDialog = () => $emit('@dialog.auth.action.open');
 
   const renderContent = (
     <Container>
@@ -44,9 +46,10 @@ export default function Header({ onOpenNav }) {
 
         {!downLg && (
           <Stack direction="row" component="nav" spacing={0.5} sx={{ px: 1 }}>
-            {navConfig.map((item) => (
-              <NavItem key={item.title} item={item} />
-            ))}
+            {navConfig.map((item) => {
+              if(item.type === 'authenticated' && !user) return null
+              return <NavItem key={item.title} item={item} />
+            })}
           </Stack>
         )}
 
@@ -65,12 +68,21 @@ export default function Header({ onOpenNav }) {
         >
           {user ? (
             <>
-              <RechargeDialog />
-              <NotificationsPopover />
+              <Button
+              color='warning'
+                variant="outlined"
+                onClick={onOpenRechargeDialog}
+                endIcon={<Iconify icon="material-symbols:poker-chip" />}
+              >
+                {user?.balance || 0}
+              </Button>
+              {/* <NotificationsPopover /> */}
               <AccountPopover />
             </>
           ) : (
-            <AuthenticationDialog />
+            <Button variant="contained" onClick={onOpenAuthDialog}>
+              Đăng nhập
+            </Button>
           )}
         </Stack>
       </Stack>

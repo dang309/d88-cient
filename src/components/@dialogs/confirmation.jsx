@@ -8,11 +8,12 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 
 export default function ConfirmationDialog(props) {
-  const { btnText, onConfirm } = props;
+  const { btnText, onConfirm, onOpen } = props;
   const radioGroupRef = React.useRef(null);
   const [open, setOpen] = React.useState(false);
 
   const handleClickListItem = () => {
+    onOpen()
     setOpen(true);
   };
 
@@ -61,4 +62,5 @@ export default function ConfirmationDialog(props) {
 ConfirmationDialog.propTypes = {
   btnText: PropTypes.string,
   onConfirm: PropTypes.func,
+  onOpen: PropTypes.func
 };

@@ -7,6 +7,10 @@ class AuthAPI {
     return request.post(`${AuthAPI.endPoint}/local`, { identifier: username, password });
   }
 
+  static async register(data) {
+    return request.post(`${AuthAPI.endPoint}/local/register`, data);
+  }
+
   static async loginWithGoogle(accessToken) {
     return request.get(`${AuthAPI.endPoint}/google/callback?access_token=${accessToken}`);
   }

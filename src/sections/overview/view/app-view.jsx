@@ -15,7 +15,7 @@ export default function AppView() {
       <Grid2 container justifyContent="start" spacing={1}>
         {matches &&
           matches.map((match) => (
-            <Grid2 key={match.id} item lg={4} md={4} sm={12} xs={12}>
+            <Grid2 key={match.id} item lg={4} md={6} sm={12} xs={12}>
               <MatchBox match={match} />
             </Grid2>
           ))}

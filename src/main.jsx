@@ -14,13 +14,19 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <HelmetProvider>
     <BrowserRouter>
-      <AuthProvider>
-        <SnackbarProvider>
+      <SnackbarProvider
+        autoHideDuration={1000}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}
+      >
+        <AuthProvider>
           <Suspense>
             <App />
           </Suspense>
-        </SnackbarProvider>
-      </AuthProvider>
+        </AuthProvider>
+      </SnackbarProvider>
     </BrowserRouter>
   </HelmetProvider>
 );

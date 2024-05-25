@@ -11,11 +11,13 @@ const navConfig = [
     title: 'Lịch thi đấu',
     path: '/',
     icon: icon('ic_analytics'),
+    type: 'public'
   },
   {
     title: 'Lịch sử cược',
     path: '/bet-history',
     icon: icon('ic_user'),
+    type: 'authenticated'
   }
 ];
 
