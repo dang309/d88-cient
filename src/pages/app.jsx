@@ -28,7 +28,7 @@ export default function AppPage() {
   return (
     <>
       <Helmet>
-        <title> D88 | Nhà cái đến từ hư vô </title>
+        <title> D88 | Lịch thi đấu </title>
       </Helmet>
 
       <AppView />
