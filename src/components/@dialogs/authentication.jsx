@@ -237,7 +237,7 @@ export default function AuthenticationDialog() {
             color="inherit"
             variant="outlined"
             type="link"
-            href="http://localhost:1337/api/connect/google"
+            href={`${import.meta.env.VITE_API_ROOT}/api/connect/google`}
             startIcon={<Iconify icon="eva:google-fill" color="#DF3E30" />}
             sx={{ borderColor: alpha(theme.palette.grey[500], 0.16) }}
           >
