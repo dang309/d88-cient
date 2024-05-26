@@ -53,12 +53,14 @@ export default function BetDialog(props) {
 
   const [betValue, setBetValue] = React.useState();
   const [betAmount, setBetAmount] = React.useState(1);
+  const [err, setErr] = React.useState('');
   const [open, setOpen] = React.useState(false);
   const [tab, setTab] = React.useState(0);
   const [match, setMatch] = React.useState();
 
   const onChangeBetAmount = (newVal) => {
     if (!user) return $emit('@dialog.auth.action.open');
+    if (err) setErr('');
     setBetAmount(newVal);
   };
 
@@ -66,14 +68,22 @@ export default function BetDialog(props) {
     setBetValue(newVal);
   };
 
-  const onBlurBetAmount = () => {
-    if (betAmount > user.balance) {
-      setBetAmount(parseInt(user.balance, 10));
-    } else if (betAmount < MIN_BET_AMOUNT) {
-      setBetAmount(MIN_BET_AMOUNT);
-    } else if (betAmount > MAX_BET_AMOUNT) {
-      setBetAmount(MAX_BET_AMOUNT);
+  const validateBetAmount = (amount, balance = 0) => {
+    let _err = '';
+    if (amount < MIN_BET_AMOUNT) {
+      _err = 'Tối thiểu 1 chip';
+    } else if (amount > MAX_BET_AMOUNT) {
+      _err = 'Tối đa là 70 chip';
+    } else if (amount > balance) {
+      _err = 'Không đủ chip';
     }
+    return _err;
+  };
+
+  const onBlurBetAmount = () => {
+    setErr('');
+    const error = validateBetAmount(betAmount, user?.balance);
+    setErr(error);
   };
 
   const onChangeTab = (_, newTab) => {
@@ -85,6 +95,11 @@ export default function BetDialog(props) {
   const onBet = (e) => {
     e.preventDefault();
     if (!user) return $emit('@dialog.auth.action.open');
+
+    setErr('');
+    const error = validateBetAmount(betAmount, user?.balance);
+    if (error) return setErr(error);
+
     const newTransaction = {
       user: user.id,
       match: match.id,
@@ -135,18 +150,40 @@ export default function BetDialog(props) {
       PaperProps={{
         component: 'form',
         onSubmit: onBet,
+        noValidate: true,
       }}
     >
       <DialogTitle>
-        <Grid2 container alignItems="center" justifyContent="start" spacing={1}>
-          <Grid2 item lg={4}>
+        <Grid2
+          container
+          alignItems="center"
+          justifyContent="start"
+          spacing={{
+            lg: 0,
+            md: 4,
+            sm: 4,
+            xs: 4,
+          }}
+        >
+          <Grid2 item lg={3} md={4} sm={4} xs={4}>
             <Stack alignItems="center" justifyContent="center">
               <Iconify icon={`flag:${match?.firstTeamFlag}`} sx={{ height: 32, width: 32 }} />
-              <Typography variant="subtitle2">{match?.firstTeamName}</Typography>
+              {match?.topTeamName === match?.firstTeamName ? (
+                <Label
+                  color="error"
+                  startIcon={<Iconify icon="fluent-emoji-high-contrast:top-arrow" />}
+                >
+                  {match?.firstTeamName}
+                </Label>
+              ) : (
+                <Typography variant="subtitle2" sx={{ textAlign: 'center' }}>
+                  {match?.firstTeamName}
+                </Typography>
+              )}
             </Stack>
           </Grid2>
 
-          <Grid2 item lg={2}>
+          <Grid2 item lg={1} md={2} sm={2} xs={2}>
             <Stack>
               <Typography variant="caption" sx={{ textAlign: 'center' }}>
                 VS
@@ -154,10 +191,21 @@ export default function BetDialog(props) {
             </Stack>
           </Grid2>
 
-          <Grid2 item lg={4}>
+          <Grid2 item lg={3} md={4} sm={4} xs={4}>
             <Stack alignItems="center" justifyContent="center">
               <Iconify icon={`flag:${match?.secondTeamFlag}`} sx={{ height: 32, width: 32 }} />
-              <Typography variant="subtitle2">{match?.secondTeamName}</Typography>
+              {match?.topTeamName === match?.secondTeamName ? (
+                <Label
+                  color="error"
+                  startIcon={<Iconify icon="fluent-emoji-high-contrast:top-arrow" />}
+                >
+                  {match?.secondTeamName}
+                </Label>
+              ) : (
+                <Typography variant="subtitle2" sx={{ textAlign: 'center' }}>
+                  {match?.secondTeamName}
+                </Typography>
+              )}
             </Stack>
           </Grid2>
         </Grid2>
@@ -175,7 +223,27 @@ export default function BetDialog(props) {
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Đằng sau mỗi cú click chuột là tương lai của các bạn. Good luck!
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <Stack direction="row" spacing={0.5}>
+              <Typography noWrap variant="subtitle2">
+                Số dư:{' '}
+              </Typography>
+
+              <Label endIcon={<Iconify icon="material-symbols:poker-chip" />}>
+                {user?.balance || 0}
+              </Label>
+            </Stack>
+
+            <Button
+              endIcon={<Iconify icon="material-symbols:poker-chip" />}
+              variant="outlined"
+              color="warning"
+              size="small"
+              onClick={onOpenRechargeDialog}
+            >
+              Nạp
+            </Button>
+          </Stack>
         </DialogContentText>
 
         <Tabs value={tab} onChange={onChangeTab} centered>
@@ -361,12 +429,15 @@ export default function BetDialog(props) {
             />
           </Grid2>
 
-          <Grid2 item lg={4} md={4} sm={12} xs={12}>
+          <Grid2 item lg={4} md={4} sm={8} xs={10}>
             <FormControl fullWidth>
               <TextField
                 value={betAmount}
                 variant="outlined"
                 label="Nhập tiền cược"
+                required
+                error={Boolean(err)}
+                helperText={err}
                 fullWidth
                 onChange={(e) => onChangeBetAmount(e.target.value)}
                 onBlur={onBlurBetAmount}
@@ -383,28 +454,7 @@ export default function BetDialog(props) {
                   type: 'number',
                 }}
               />
-              <FormHelperText component="div">
-                <Stack direction="row" alignItems="center" spacing={2}>
-                  <Stack direction="row" spacing={0.5}>
-                    <Typography noWrap variant="subtitle2">
-                      Số dư:{' '}
-                    </Typography>
-
-                    <Label endIcon={<Iconify icon="material-symbols:poker-chip" />}>
-                      {user?.balance || 0}
-                    </Label>
-                  </Stack>
-
-                  <Button
-                    endIcon={<Iconify icon="material-symbols:poker-chip" />}
-                    variant="outlined"
-                    size="small"
-                    onClick={onOpenRechargeDialog}
-                  >
-                    Nạp
-                  </Button>
-                </Stack>
-              </FormHelperText>
+              <FormHelperText component="div" />
             </FormControl>
           </Grid2>
         </Grid2>

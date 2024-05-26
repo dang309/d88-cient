@@ -47,9 +47,15 @@ export default function Header({ onOpenNav }) {
         {!downLg && (
           <Stack direction="row" component="nav" spacing={0.5} sx={{ px: 1 }}>
             {navConfig.map((item) => {
-              if(item.type === 'authenticated' && !user) return null
-              return <NavItem key={item.title} item={item} />
+              if (item.type === 'authenticated' && !user) return null;
+              return <NavItem key={item.title} item={item} />;
             })}
+          </Stack>
+        )}
+
+        {downLg && (
+          <Stack alignItems="center" sx={{flexGrow: 1}}>
+            <Logo sx={{ height: 32 }} />
           </Stack>
         )}
 
@@ -69,7 +75,7 @@ export default function Header({ onOpenNav }) {
           {user ? (
             <>
               <Button
-              color='warning'
+                color="warning"
                 variant="outlined"
                 onClick={onOpenRechargeDialog}
                 endIcon={<Iconify icon="material-symbols:poker-chip" />}

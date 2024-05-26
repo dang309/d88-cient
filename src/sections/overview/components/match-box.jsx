@@ -21,9 +21,13 @@ const MatchBox = ({ match }) => {
           <Grid2 item lg={4}>
             <Stack alignItems="center" justifyContent="center">
               <Iconify icon={`flag:${match.firstTeamFlag}`} sx={{ height: 32, width: 32 }} />
-              <Typography variant="subtitle2" sx={{ textAlign: 'center' }}>
-                {match?.firstTeamName}
-              </Typography>
+              {match?.topTeamName === match?.firstTeamName ? (
+                <Label color="error" startIcon={<Iconify icon="fluent-emoji-high-contrast:top-arrow" />}>{match?.firstTeamName}</Label>
+              ) : (
+                <Typography variant="subtitle2" sx={{ textAlign: 'center' }}>
+                  {match?.firstTeamName}
+                </Typography>
+              )}
             </Stack>
           </Grid2>
 
@@ -51,9 +55,13 @@ const MatchBox = ({ match }) => {
           <Grid2 item lg={4}>
             <Stack alignItems="center" justifyContent="center" gap={0.5}>
               <Iconify icon={`flag:${match.secondTeamFlag}`} sx={{ height: 32, width: 32 }} />
-              <Typography variant="subtitle2" sx={{ textAlign: 'center' }}>
-                {match?.secondTeamName}
-              </Typography>
+              {match?.topTeamName === match?.secondTeamName ? (
+                <Label color="error" startIcon={<Iconify icon="fluent-emoji-high-contrast:top-arrow" />}>{match?.secondTeamName}</Label>
+              ) : (
+                <Typography variant="subtitle2" sx={{ textAlign: 'center' }}>
+                  {match?.secondTeamName}
+                </Typography>
+              )}
             </Stack>
           </Grid2>
         </Grid2>

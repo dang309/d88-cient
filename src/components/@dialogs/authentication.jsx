@@ -8,7 +8,6 @@ import DialogContent from '@mui/material/DialogContent';
 import {
   Tab,
   Box,
-  Link,
   Tabs,
   Stack,
   alpha,
@@ -108,11 +107,11 @@ export default function AuthenticationDialog() {
           )}
         />
 
-        <Stack direction="row" alignItems="center" justifyContent="flex-end" sx={{ my: 3 }}>
+        {/* <Stack direction="row" alignItems="center" justifyContent="flex-end" sx={{ my: 3 }}>
           <Link variant="subtitle2" underline="hover">
             Quên mật khẩu?
           </Link>
-        </Stack>
+        </Stack> */}
 
         <LoadingButton
           fullWidth

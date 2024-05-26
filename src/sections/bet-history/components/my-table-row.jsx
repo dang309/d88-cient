@@ -73,10 +73,10 @@ export default function MyTableRow({ row }) {
 
         <TableCell>{betAmount}</TableCell>
         <TableCell>
-          <Label color="success">Thắng</Label>
+          <Label>-</Label>
         </TableCell>
-        <TableCell>{betAmount}</TableCell>
-        <TableCell>{betAmount}</TableCell>
+        <TableCell>-</TableCell>
+        <TableCell>-</TableCell>
       </TableRow>
   );
 }
