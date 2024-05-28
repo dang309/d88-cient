@@ -13,7 +13,7 @@ import {
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 
-export default function TransactionItem({ item, lastTimeline }) {
+export default function Transaction({ item, lastTimeline }) {
   const { type, amount, createdAt } = item;
   return (
     <TimelineItem>
@@ -38,7 +38,7 @@ export default function TransactionItem({ item, lastTimeline }) {
   );
 }
 
-TransactionItem.propTypes = {
+Transaction.propTypes = {
   item: PropTypes.object,
   lastTimeline: PropTypes.bool,
 };
