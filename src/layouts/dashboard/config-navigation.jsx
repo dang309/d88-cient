@@ -18,6 +18,12 @@ const navConfig = [
     path: '/bet-history',
     icon: icon('line-md:clipboard-list-twotone'),
     type: 'authenticated'
+  },
+  {
+    title: 'Lịch sử nạp/rút',
+    path: '/transaction-history',
+    icon: icon('line-md:arrows-vertical'),
+    type: 'authenticated'
   }
 ];
 
