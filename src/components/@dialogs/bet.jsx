@@ -45,7 +45,7 @@ const TAB = {
 };
 
 export default function BetDialog(props) {
-  const { user } = useAuth();
+  const { user, initialize } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
   const { $emit, $on } = useEventBus();
 
@@ -109,17 +109,16 @@ export default function BetDialog(props) {
     };
 
     return TransactionAPI.create(newTransaction)
-      .then(() =>
+      .then(() => {
         enqueueSnackbar('Đặt cược thành công!', {
           variant: 'success',
+        });
+      })
+      .then(() => {
+        initialize().then(() => {
+          onClose()
         })
-      )
-      .then(() => onClose())
-      .catch(() =>
-        enqueueSnackbar('Đặt cược thất bại. Vui lòng thử lại!', {
-          variant: 'error',
-        })
-      );
+      });
   };
 
   const onOpenRechargeDialog = () => $emit('@dialog.recharge.action.open');
@@ -241,7 +240,7 @@ export default function BetDialog(props) {
               size="small"
               onClick={onOpenRechargeDialog}
             >
-              Nạp
+              Nạp thêm
             </Button>
           </Stack>
         </DialogContentText>

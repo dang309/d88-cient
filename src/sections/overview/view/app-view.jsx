@@ -4,12 +4,14 @@ import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 
 import useData from 'src/hooks/data';
 
+import { Empty, Loader } from 'src/components/common';
+
 import MatchBox from '../components/match-box';
 
 // ----------------------------------------------------------------------
 
 export default function AppView() {
-  const { items: matches } = useData('/matches');
+  const { items: matches, isLoading } = useData('/matches');
   return (
     <Container>
       <Grid2 container justifyContent="start" spacing={1}>
@@ -19,6 +21,12 @@ export default function AppView() {
               <MatchBox match={match} />
             </Grid2>
           ))}
+        {
+          isLoading && <Loader />
+        }
+        {
+          !isLoading && matches && matches.length === 0 && <Empty />
+        }
       </Grid2>
     </Container>
   );

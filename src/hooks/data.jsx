@@ -27,7 +27,7 @@ const useData = (url) => {
     mutate,
   };
 
-  result.items = data?.items
+  result.items = data?.items || []
   result.pagination = data?.pagination
 
   return result;

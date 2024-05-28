@@ -24,20 +24,15 @@ const onRequest = (config) => {
   return config;
 };
 
-const onRequestError = (error) => {
-  enqueueSnackbar('Thất bại!', {
-    variant: 'error',
-    autoHideDuration: 1000
-  });
-  return Promise.reject(error);
-};
+const onRequestError = (error) => Promise.reject(error);
 
 const onResponse = (response) => response;
 
 const onResponseError = (error) => {
-  enqueueSnackbar('Thất bại!', {
+  const errMessage = error.response.data?.error?.message || 'Thất bại!';
+  enqueueSnackbar(errMessage, {
     variant: 'error',
-    autoHideDuration: 1000
+    autoHideDuration: 2500,
   });
   return Promise.reject(error);
 };

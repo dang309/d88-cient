@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useSnackbar } from 'notistack';
 import { useForm, Controller } from 'react-hook-form';
 
 import { LoadingButton } from '@mui/lab';
@@ -34,6 +35,7 @@ const TAB = {
 export default function AuthenticationDialog() {
   const theme = useTheme();
   const { signIn, register } = useAuth();
+  const { enqueueSnackbar } = useSnackbar();
   const { $on } = useEventBus();
   const {
     control,
@@ -53,12 +55,20 @@ export default function AuthenticationDialog() {
 
   const onSubmit = handleSubmit(async (data) => {
     if (tab === TAB.LOGIN) {
-      await signIn(data.username, data.password);
+      signIn(data.username, data.password).then(() => {
+        enqueueSnackbar('Đăng nhập thành công!', {
+          variant: 'success',
+        });
+        onClose();
+      });
     } else if (tab === TAB.REGISTER) {
-      await register(data);
+      register(data).then(() => {
+        enqueueSnackbar('Đăng Ký thành công!', {
+          variant: 'success',
+        });
+        onClose();
+      });
     }
-
-    onClose()
   });
 
   const onOpen = () => {

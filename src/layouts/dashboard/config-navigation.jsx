@@ -1,22 +1,22 @@
-import SvgColor from 'src/components/svg-color';
+import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
 const icon = (name) => (
-  <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1 }} />
+  <Iconify icon={name} sx={{ width: 1, height: 1 }} />
 );
 
 const navConfig = [
   {
     title: 'Lịch thi đấu',
     path: '/',
-    icon: icon('ic_analytics'),
+    icon: icon('line-md:calendar'),
     type: 'public'
   },
   {
     title: 'Lịch sử cược',
     path: '/bet-history',
-    icon: icon('ic_user'),
+    icon: icon('line-md:clipboard-list-twotone'),
     type: 'authenticated'
   }
 ];
