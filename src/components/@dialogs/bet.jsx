@@ -70,7 +70,10 @@ export default function BetDialog(props) {
 
   const validateBetAmount = (amount, balance = 0) => {
     let _err = '';
-    if (amount < MIN_BET_AMOUNT) {
+    if(amount % 1 !== 0) {
+      _err = 'Số chip không được lẻ'
+    }
+    else if (amount < MIN_BET_AMOUNT) {
       _err = 'Tối thiểu 1 chip';
     } else if (amount > MAX_BET_AMOUNT) {
       _err = 'Tối đa là 70 chip';
