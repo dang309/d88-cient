@@ -6,6 +6,7 @@ import DashboardLayout from 'src/layouts/dashboard';
 export const IndexPage = lazy(() => import('src/pages/app'));
 export const BetHistoryPage = lazy(() => import('src/pages/bet-history'));
 export const TransactionHistoryPage = lazy(() => import('src/pages/transaction-history'));
+export const MiniGamePage = lazy(() => import('src/pages/mini-game'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
 
 // ----------------------------------------------------------------------
@@ -24,6 +25,7 @@ export default function Router() {
         { element: <IndexPage />, index: true },
         { path: 'bet-history', element: <BetHistoryPage /> },
         { path: 'transaction-history', element: <TransactionHistoryPage /> },
+        { path: 'mini-game', element: <MiniGamePage /> },
       ],
     },
     {

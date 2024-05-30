@@ -4,7 +4,7 @@ import { TransactionHistoryView } from 'src/sections/transaction-history/view';
 
 // ----------------------------------------------------------------------
 
-export default function RechargeWithdrawHistoryPage() {
+export default function TransactionHistoryPage() {
   return (
     <>
       <Helmet>

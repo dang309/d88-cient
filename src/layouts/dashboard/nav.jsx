@@ -49,7 +49,7 @@ export default function Nav({ openNav, onCloseNav }) {
         bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
       }}
     >
-      <Avatar src={user?.avatar} alt={user?.username}>
+      <Avatar src={user?.avatarUrl} alt={user?.username}>
         {user?.username?.charAt(0)?.toUpperCase()}
       </Avatar>
 

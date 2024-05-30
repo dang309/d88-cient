@@ -1,5 +1,4 @@
 import QueryString from 'qs';
-import { useMemo } from 'react';
 
 import Container from '@mui/material/Container';
 import { Card, CardHeader } from '@mui/material';
@@ -16,9 +15,9 @@ import Transaction from '../components/transaction';
 
 export default function AppView() {
   const { user } = useAuth();
-  const { items: recharges, isLoading: isLoadingRecharges } = useData(
+  const { items: transactions, isLoading } = useData(
     user
-      ? `/recharges?${QueryString.stringify({
+      ? `/transactions?${QueryString.stringify({
           populate: ['user'],
           filters: {
             user: {
@@ -28,36 +27,6 @@ export default function AppView() {
         })}`
       : undefined
   );
-  const { items: withdraws, isLoading: isLoadingWithdraws } = useData(
-    user
-      ? `/withdraws?${QueryString.stringify({
-          populate: ['user'],
-          filters: {
-            user: {
-              id: user.id,
-            },
-          },
-        })}`
-      : undefined
-  );
-
-  const data = useMemo(() => {
-    if (recharges && withdraws) {
-      return recharges
-        .map((item) => ({
-          ...item,
-          type: 'recharge',
-        }))
-        .concat(
-          withdraws.map((item) => ({
-            ...item,
-            type: 'withdraw',
-          }))
-        )
-        .sort((a, b) => new Date(a.createdAt).valueOf() - new Date(b.createdAt).valueOf());
-    }
-    return [];
-  }, [recharges, withdraws]);
 
   return (
     <Container>
@@ -74,14 +43,18 @@ export default function AppView() {
             },
           }}
         >
-          {data &&
-            data.map((item, index) => (
-              <Transaction key={item.id} item={item} lastTimeline={index === data.length - 1} />
+          {transactions &&
+            transactions.map((item, index) => (
+              <Transaction
+                key={item.id}
+                item={item}
+                lastTimeline={index === transactions.length - 1}
+              />
             ))}
 
-          {(isLoadingRecharges || isLoadingWithdraws) && <Loader />}
+          {isLoading && <Loader />}
 
-          {!isLoadingRecharges && !isLoadingWithdraws && data.length === 0 && <Empty />}
+          {!isLoading && transactions.length === 0 && <Empty />}
         </Timeline>
       </Card>
     </Container>

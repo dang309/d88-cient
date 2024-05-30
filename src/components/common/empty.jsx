@@ -1,7 +1,9 @@
+import PropTypes from 'prop-types'
+
 import { Box, Stack, Typography } from '@mui/material';
 
-const Empty = () => (
-  <Stack alignItems="center" justifyContent='center' sx={{ width: '100%', height: '100%' }}>
+const Empty = ({text}) => (
+  <Stack alignItems="center" justifyContent='center' sx={{ width: '100%', height: '100%' }} spacing={1}>
     <Box sx={{ display: 'flex', justifyContent: 'center', width: 256, height: 256, mx: 'auto' }}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -46,8 +48,12 @@ const Empty = () => (
         <circle cx="433.63626" cy="105.17383" r="12.18187" fill="#fff" />
       </svg>
     </Box>
-    <Typography variant="h6" sx={{color: 'text.secondary'}}>Không có dữ liệu</Typography>
+    <Typography variant="h6" sx={{color: 'text.secondary'}}>{text || 'Không có dữ liệu'}</Typography>
   </Stack>
 );
+
+Empty.propTypes = {
+  text: PropTypes.string
+}
 
 export default Empty;

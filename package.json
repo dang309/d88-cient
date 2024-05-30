@@ -20,10 +20,13 @@
     "vite:build": "vite build"
   },
   "dependencies": {
+    "@dicebear/collection": "^8.0.1",
+    "@dicebear/core": "^8.0.1",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@faker-js/faker": "^8.1.0",
     "@iconify/react": "^4.1.1",
+    "@lottiefiles/dotlottie-react": "^0.6.0",
     "@mui/lab": "^5.0.0-alpha.170",
     "@mui/material": "^5.15.18",
     "apexcharts": "^3.43.0",

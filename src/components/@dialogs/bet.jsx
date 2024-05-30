@@ -31,7 +31,7 @@ import useAuth from 'src/hooks/auth';
 import useEventBus from 'src/hooks/event-bus';
 import { useResponsive } from 'src/hooks/use-responsive';
 
-import { TransactionAPI } from 'src/api';
+import { BetAPI } from 'src/api';
 
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
@@ -103,7 +103,7 @@ export default function BetDialog(props) {
     const error = validateBetAmount(betAmount, user?.balance);
     if (error) return setErr(error);
 
-    const newTransaction = {
+    const newBet = {
       user: user.id,
       match: match.id,
       betType: tab === TAB.HANDICAP ? 'handicap' : 'overUnder',
@@ -111,7 +111,7 @@ export default function BetDialog(props) {
       betAmount,
     };
 
-    return TransactionAPI.create(newTransaction)
+    return BetAPI.create(newBet)
       .then(() => {
         enqueueSnackbar('Đặt cược thành công!', {
           variant: 'success',

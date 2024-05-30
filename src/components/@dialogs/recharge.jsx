@@ -8,6 +8,7 @@ import { Box, Stack, IconButton, Typography } from '@mui/material';
 
 import useEventBus from 'src/hooks/event-bus';
 
+import Label from '../label';
 import Iconify from '../iconify';
 
 export default function RechargeDialog() {
@@ -35,9 +36,16 @@ export default function RechargeDialog() {
       onClose={onClose}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
+      maxWidth="sm"
+      fullWidth
     >
       <DialogTitle id="alert-dialog-title">
-        <Typography variant="h6">Nạp chip</Typography>
+        <Stack direction="row" alignItems="center" spacing={2}>
+          <Typography variant="h6">Nạp chip</Typography>
+          <Label color="error" sx={{ textTransform: 'none' }}>
+            Nạp lần đầu x2 chip
+          </Label>
+        </Stack>
 
         <IconButton
           aria-label="close"
@@ -53,7 +61,11 @@ export default function RechargeDialog() {
       </DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
-          Quét mã bên dưới để chuyển tiền. Chip sẽ được cập nhật chậm nhất là 1 tiếng
+          <Stack alignItems="start" spacing={1}>
+            <Label>1 chip = 10k</Label>
+            <Typography variant="subtitle2">Quét mã bên dưới và nhập số tiền muốn nạp. </Typography>
+            <Typography variant="subtitle2">Chip sẽ được cập nhật chậm nhất là 15 phút</Typography>
+          </Stack>
         </DialogContentText>
         <Stack alignItems="center" sx={{ p: 2 }}>
           <Box

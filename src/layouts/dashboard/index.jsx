@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 
 import BetDialog from 'src/components/@dialogs/bet';
 import RechargeDialog from 'src/components/@dialogs/recharge';
+import PredictionDialog from 'src/components/@dialogs/prediction';
 import AuthenticationDialog from 'src/components/@dialogs/authentication';
 
 import Nav from './nav';
@@ -34,6 +35,7 @@ export default function DashboardLayout({ children }) {
         <RechargeDialog />
         <AuthenticationDialog />
         <BetDialog />
+        <PredictionDialog />
       </Box>
     </>
   );

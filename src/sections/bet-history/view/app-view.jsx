@@ -34,9 +34,9 @@ const HEAD_LABELS = [
 
 export default function BetHistoryPage() {
   const { user } = useAuth();
-  const { items: transactions } = useData(
+  const { items: bets } = useData(
     user
-      ? `/transactions?${qs.stringify({
+      ? `/bets?${qs.stringify({
           populate: ['match', 'user'],
           filters: {
             user: {
@@ -73,7 +73,7 @@ export default function BetHistoryPage() {
   };
 
   const dataFiltered = applyFilter({
-    inputData: transactions,
+    inputData: bets,
     comparator: getComparator(order, orderBy),
   });
 
@@ -88,7 +88,7 @@ export default function BetHistoryPage() {
               <MyTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={transactions?.length || 0}
+                rowCount={bets?.length || 0}
                 onRequestSort={handleSort}
                 headLabel={HEAD_LABELS}
               />
@@ -99,7 +99,7 @@ export default function BetHistoryPage() {
                     <MyTableRow key={row.id} row={row} />
                   ))}
 
-                <MyEmptyRows height={77} emptyRows={emptyRows(page, rowsPerPage, transactions?.length)} />
+                <MyEmptyRows height={77} emptyRows={emptyRows(page, rowsPerPage, bets?.length)} />
 
                 {notFound && <MyTableNoData />}
               </TableBody>
@@ -110,7 +110,7 @@ export default function BetHistoryPage() {
         <TablePagination
           page={page}
           component="div"
-          count={transactions?.length || 0}
+          count={bets?.length || 0}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}

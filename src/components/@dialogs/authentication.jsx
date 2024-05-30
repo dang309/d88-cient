@@ -62,6 +62,7 @@ export default function AuthenticationDialog() {
         onClose();
       });
     } else if (tab === TAB.REGISTER) {
+      data.avatarUrl = `https://api.dicebear.com/8.x/adventurer/svg?seed=${data.username.split(' ').join('_')}`
       register(data).then(() => {
         enqueueSnackbar('Đăng Ký thành công!', {
           variant: 'success',
@@ -143,7 +144,7 @@ export default function AuthenticationDialog() {
         control={control}
         name="username"
         render={({ field: { onChange, value } }) => (
-          <TextField label="Tên" autoComplete="off" value={value} onChange={onChange} />
+          <TextField label="Tên" autoComplete="off" value={value} onChange={onChange} required />
         )}
       />
 
@@ -151,7 +152,7 @@ export default function AuthenticationDialog() {
         control={control}
         name="email"
         render={({ field: { onChange, value } }) => (
-          <TextField label="Email" type="email" value={value} onChange={onChange} />
+          <TextField label="Email" type="email" value={value} onChange={onChange} required />
         )}
       />
 
@@ -164,6 +165,7 @@ export default function AuthenticationDialog() {
             type={showPassword ? 'text' : 'password'}
             value={value}
             onChange={onChange}
+            required
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">

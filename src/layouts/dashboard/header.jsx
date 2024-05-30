@@ -1,11 +1,13 @@
 import PropTypes from 'prop-types';
+import { useState, useEffect } from 'react';
+import { useLocation, Link as RouterLink } from 'react-router-dom';
 
 import Stack from '@mui/material/Stack';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import { useTheme } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
-import { Button, Container } from '@mui/material';
+import { Link, Alert, Button, Collapse, Container, Typography } from '@mui/material';
 
 import useAuth from 'src/hooks/auth';
 import useEventBus from 'src/hooks/event-bus';
@@ -27,11 +29,18 @@ export default function Header({ onOpenNav }) {
   const theme = useTheme();
   const { user } = useAuth();
   const { $emit } = useEventBus();
+  const location = useLocation();
 
   const downLg = useResponsive('down', 'lg');
 
+  const [openAlert, setOpenAlert] = useState(true);
+
   const onOpenRechargeDialog = () => $emit('@dialog.recharge.action.open');
   const onOpenAuthDialog = () => $emit('@dialog.auth.action.open');
+
+  const onCloseAlert = () => {
+    setOpenAlert(false);
+  };
 
   const renderContent = (
     <Container>
@@ -54,7 +63,7 @@ export default function Header({ onOpenNav }) {
         )}
 
         {downLg && (
-          <Stack alignItems="center" sx={{flexGrow: 1}}>
+          <Stack alignItems="center" sx={{ flexGrow: 1 }}>
             <Logo sx={{ height: 32 }} />
           </Stack>
         )}
@@ -95,32 +104,62 @@ export default function Header({ onOpenNav }) {
     </Container>
   );
 
+  useEffect(() => {
+    if (location.pathname.includes('mini-game')) {
+      onCloseAlert();
+    }
+  }, [location.pathname]);
+
   return (
-    <AppBar
-      sx={{
-        boxShadow: 'none',
-        height: HEADER.H_MOBILE,
-        zIndex: theme.zIndex.appBar + 1,
-        ...bgBlur({
-          color: theme.palette.background.default,
-        }),
-        transition: theme.transitions.create(['height'], {
-          duration: theme.transitions.duration.shorter,
-        }),
-        ...(!downLg && {
-          height: HEADER.H_DESKTOP,
-        }),
-      }}
-    >
-      <Toolbar
+    <>
+      <Container>
+        <Collapse in={openAlert}>
+          <Alert
+            severity="info"
+            variant="outlined"
+            action={
+              <IconButton onClick={onCloseAlert}>
+                <Iconify icon="line-md:close" />
+              </IconButton>
+            }
+            sx={{ width: '100%' }}
+          >
+            <Typography variant="caption">
+              Tham gia mini game ngay để tăng thu nhập thôi nào!{' '}
+              <Link component={RouterLink} variant="caption" to="/mini-game" onClick={onCloseAlert}>
+                Tham gia ngay
+              </Link>
+            </Typography>
+          </Alert>
+        </Collapse>
+      </Container>
+      <AppBar
+        position={openAlert ? 'static' : 'fixed'}
         sx={{
-          height: 1,
-          px: { lg: 5 },
+          boxShadow: 'none',
+          height: HEADER.H_MOBILE,
+          zIndex: theme.zIndex.appBar + 1,
+          ...bgBlur({
+            color: theme.palette.background.default,
+          }),
+          transition: theme.transitions.create(['height'], {
+            duration: theme.transitions.duration.shorter,
+          }),
+          ...(!downLg && {
+            height: HEADER.H_DESKTOP,
+          }),
         }}
       >
-        {renderContent}
-      </Toolbar>
-    </AppBar>
+        <Toolbar
+          sx={{
+            height: 1,
+            px: { lg: 5 },
+          }}
+        >
+          {renderContent}
+        </Toolbar>
+      </AppBar>
+    </>
   );
 }
 
