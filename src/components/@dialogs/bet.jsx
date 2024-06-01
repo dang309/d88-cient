@@ -9,6 +9,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import {
   Tab,
+  Box,
   List,
   Tabs,
   Stack,
@@ -24,7 +25,6 @@ import {
   InputAdornment,
   FormHelperText,
   ToggleButtonGroup,
-  DialogContentText,
 } from '@mui/material';
 
 import useAuth from 'src/hooks/auth';
@@ -70,10 +70,9 @@ export default function BetDialog(props) {
 
   const validateBetAmount = (amount, balance = 0) => {
     let _err = '';
-    if(amount % 1 !== 0) {
-      _err = 'Số chip không được lẻ'
-    }
-    else if (amount < MIN_BET_AMOUNT) {
+    if (amount % 1 !== 0) {
+      _err = 'Số chip không được lẻ';
+    } else if (amount < MIN_BET_AMOUNT) {
       _err = 'Tối thiểu 1 chip';
     } else if (amount > MAX_BET_AMOUNT) {
       _err = 'Tối đa là 70 chip';
@@ -119,8 +118,8 @@ export default function BetDialog(props) {
       })
       .then(() => {
         initialize().then(() => {
-          onClose()
-        })
+          onClose();
+        });
       });
   };
 
@@ -154,294 +153,271 @@ export default function BetDialog(props) {
         onSubmit: onBet,
         noValidate: true,
       }}
+      disableScrollLock
     >
       <DialogTitle>
-        <Grid2
-          container
-          alignItems="center"
-          justifyContent="start"
-          spacing={{
-            lg: 0,
-            md: 4,
-            sm: 4,
-            xs: 4,
-          }}
-        >
-          <Grid2 item lg={3} md={4} sm={4} xs={4}>
-            <Stack alignItems="center" justifyContent="center">
-              <Iconify icon={`flag:${match?.firstTeamFlag}`} sx={{ height: 32, width: 32 }} />
-              <Typography variant={downSm ? 'caption' : 'subtitle2'} sx={{ textAlign: 'center' }}>
-                {match?.topTeamName === match?.firstTeamName ? <mark><strong>{match?.firstTeamName}</strong></mark> : match?.firstTeamName}
-              </Typography>
-            </Stack>
-          </Grid2>
-
-          <Grid2 item lg={1} md={2} sm={2} xs={2}>
-            <Stack>
-              <Typography variant="caption" sx={{ textAlign: 'center' }}>
-                VS
-              </Typography>
-            </Stack>
-          </Grid2>
-
-          <Grid2 item lg={3} md={4} sm={4} xs={4}>
-            <Stack alignItems="center" justifyContent="center">
-              <Iconify icon={`flag:${match?.secondTeamFlag}`} sx={{ height: 32, width: 32 }} />
-              <Typography variant={downSm ? 'caption' : 'subtitle2'} sx={{ textAlign: 'center' }}>
-                {match?.topTeamName === match?.secondTeamName ? <mark><strong>{match?.secondTeamName}</strong></mark> : match?.secondTeamName}
-              </Typography>
-            </Stack>
-          </Grid2>
-        </Grid2>
+        Đặt cược
         <IconButton
           aria-label="close"
           onClick={onClose}
           sx={{
             position: 'absolute',
-            right: 16,
-            top: 16,
+            right: {
+              lg: 16,
+              xs: 8,
+            },
+            top: {
+              lg: 16,
+              xs: 8,
+            },
           }}
         >
           <Iconify icon="material-symbols:close" />
         </IconButton>
       </DialogTitle>
       <DialogContent>
-        <DialogContentText>
-          <Stack direction="row" alignItems="center" spacing={2}>
-            <Stack direction="row" spacing={0.5}>
-              <Typography noWrap variant="subtitle2">
-                Số dư:{' '}
-              </Typography>
+        <Stack>
+          <Tabs value={tab} onChange={onChangeTab} centered>
+            <Tab label="Kèo chấp" />
+            <Tab label="Kèo tài/xỉu" />
+          </Tabs>
 
-              <Label endIcon={<Iconify icon="material-symbols:poker-chip" />}>
-                {user?.balance || 0}
-              </Label>
-            </Stack>
-
-            <Button
-              endIcon={<Iconify icon="material-symbols:poker-chip" />}
-              variant="outlined"
-              color="warning"
-              size="small"
-              onClick={onOpenRechargeDialog}
-            >
-              Nạp thêm
-            </Button>
-          </Stack>
-        </DialogContentText>
-
-        <Tabs value={tab} onChange={onChangeTab} centered>
-          <Tab label="Kèo chấp" />
-          <Tab label="Kèo tài/xỉu" />
-        </Tabs>
-
-        {tab === TAB.HANDICAP && (
-          <List
-            subheader={
-              <ListSubheader component="div" id="nested-list-subheader">
-                <Label>{match?.handicap?.threshold.toFixed(1) || 0} trái</Label>
-              </ListSubheader>
-            }
-          >
-            <ListItem>
-              <ToggleButtonGroup
-                color="secondary"
-                value={betValue}
-                onChange={(_, newVal) => onChangeBetValue(newVal)}
-                exclusive
-                fullWidth
+          <Box>
+            {tab === TAB.HANDICAP && (
+              <List
+                dense
+                subheader={
+                  <ListSubheader component="div" id="nested-list-subheader">
+                    <Label>{match?.handicap?.threshold.toFixed(1) || 0} trái</Label>
+                  </ListSubheader>
+                }
               >
-                <ToggleButton value={match?.firstTeamName}>
-                  <Stack
-                    direction="row"
-                    alignItems="center"
-                    justifyContent="space-between"
-                    sx={{ width: '100%' }}
+                <ListItem>
+                  <ToggleButtonGroup
+                    color="secondary"
+                    value={betValue}
+                    onChange={(_, newVal) => onChangeBetValue(newVal)}
+                    exclusive
+                    fullWidth
                   >
-                    <Stack
-                      direction={downSm ? 'column' : 'row'}
-                      alignItems="center"
-                      spacing={downSm ? 0 : 1}
-                    >
-                      <Iconify
-                        icon={`flag:${match?.firstTeamFlag}`}
-                        sx={{ height: 32, width: 32 }}
-                      />
-                      <Typography variant={downSm ? 'caption' : 'subtitle2'}>
-                        {match?.firstTeamName}
-                      </Typography>
-                    </Stack>
-                    <Typography variant="caption">
-                      {match?.handicap?.firstTeamWinRate.toFixed(1) || 0}
-                    </Typography>
-                  </Stack>
-                </ToggleButton>
-                <ToggleButton value={match?.secondTeamName}>
-                  <Stack
-                    direction="row"
-                    alignItems="center"
-                    justifyContent="space-between"
-                    sx={{ width: '100%' }}
-                  >
-                    <Typography variant="caption">
-                      {match?.handicap?.secondTeamWinRate.toFixed(1) || 0}
-                    </Typography>
-                    <Stack
-                      direction={downSm ? 'column-reverse' : 'row'}
-                      alignItems="center"
-                      spacing={downSm ? 0 : 1}
-                    >
-                      <Typography variant={downSm ? 'caption' : 'subtitle2'}>
-                        {match?.secondTeamName}
-                      </Typography>
-                      <Iconify
-                        icon={`flag:${match?.secondTeamFlag}`}
-                        sx={{ height: 32, width: 32 }}
-                      />
-                    </Stack>
-                  </Stack>
-                </ToggleButton>
-              </ToggleButtonGroup>
-            </ListItem>
-          </List>
-        )}
+                    <ToggleButton value={match?.firstTeamName}>
+                      <Stack
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        sx={{ width: '100%' }}
+                      >
+                        <Stack
+                          direction={downSm ? 'column' : 'row'}
+                          alignItems="center"
+                          spacing={downSm ? 0 : 1}
+                        >
+                          <Iconify
+                            icon={`flag:${match?.firstTeamFlag}`}
+                            sx={{ height: 32, width: 32 }}
+                          />
+                          <Typography variant={downSm ? 'caption' : 'subtitle2'}>
+                            {match?.firstTeamName}
+                          </Typography>
+                        </Stack>
+                        <Typography variant="caption">
+                          {match?.handicap?.firstTeamWinRate.toFixed(1) || 0}
+                        </Typography>
+                      </Stack>
+                    </ToggleButton>
+                    <ToggleButton value={match?.secondTeamName}>
+                      <Stack
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        sx={{ width: '100%' }}
+                      >
+                        <Typography variant="caption">
+                          {match?.handicap?.secondTeamWinRate.toFixed(1) || 0}
+                        </Typography>
+                        <Stack
+                          direction={downSm ? 'column-reverse' : 'row'}
+                          alignItems="center"
+                          spacing={downSm ? 0 : 1}
+                        >
+                          <Typography variant={downSm ? 'caption' : 'subtitle2'}>
+                            {match?.secondTeamName}
+                          </Typography>
+                          <Iconify
+                            icon={`flag:${match?.secondTeamFlag}`}
+                            sx={{ height: 32, width: 32 }}
+                          />
+                        </Stack>
+                      </Stack>
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </ListItem>
+              </List>
+            )}
 
-        {tab === TAB.OVER_UNDER && (
-          <List
-            subheader={
-              <ListSubheader component="div" id="nested-list-subheader">
-                <Label>{match?.overUnder?.threshold.toFixed(1) || 0} trái</Label>
-              </ListSubheader>
-            }
-          >
-            <ListItem>
-              <ToggleButtonGroup
-                color="secondary"
-                value={betValue}
-                onChange={(_, newVal) => onChangeBetValue(newVal)}
-                exclusive
-                aria-label="text alignment"
-                fullWidth
+            {tab === TAB.OVER_UNDER && (
+              <List
+                subheader={
+                  <ListSubheader component="div" id="nested-list-subheader">
+                    <Label>{match?.overUnder?.threshold.toFixed(1) || 0} trái</Label>
+                  </ListSubheader>
+                }
               >
-                <ToggleButton value="over">
-                  <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    sx={{ width: '100%' }}
+                <ListItem>
+                  <ToggleButtonGroup
+                    color="secondary"
+                    value={betValue}
+                    onChange={(_, newVal) => onChangeBetValue(newVal)}
+                    exclusive
+                    aria-label="text alignment"
+                    fullWidth
                   >
-                    <Typography variant="subtitle1">Tài</Typography>
-                    <Typography variant="caption">
-                      {match?.overUnder?.overWinRate.toFixed(1) || 0}
-                    </Typography>
-                  </Stack>
-                </ToggleButton>
-                <ToggleButton value="under">
-                  <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    sx={{ width: '100%' }}
-                  >
-                    <Typography variant="caption">
-                      {match?.overUnder?.underWinRate.toFixed(1) || 0}
-                    </Typography>
-                    <Typography variant="subtitle1">Xỉu</Typography>
-                  </Stack>
-                </ToggleButton>
-              </ToggleButtonGroup>
-            </ListItem>
-          </List>
-        )}
+                    <ToggleButton value="over">
+                      <Stack
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        sx={{ width: '100%' }}
+                      >
+                        <Typography variant="subtitle1">Tài</Typography>
+                        <Typography variant="caption">
+                          {match?.overUnder?.overWinRate.toFixed(1) || 0}
+                        </Typography>
+                      </Stack>
+                    </ToggleButton>
+                    <ToggleButton value="under">
+                      <Stack
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        sx={{ width: '100%' }}
+                      >
+                        <Typography variant="caption">
+                          {match?.overUnder?.underWinRate.toFixed(1) || 0}
+                        </Typography>
+                        <Typography variant="subtitle1">Xỉu</Typography>
+                      </Stack>
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </ListItem>
+              </List>
+            )}
+          </Box>
 
-        <Divider />
+          <Divider>
+            {user && (
+              <Stack direction="row" alignItems="center" spacing={2}>
+                <Stack direction="row" spacing={0.5}>
+                  <Typography noWrap variant="subtitle2">
+                    Số dư:{' '}
+                  </Typography>
 
-        <Grid2
-          container
-          spacing={2}
-          justifyContent="space-evenly"
-          alignItems="center"
-          sx={{ py: 2 }}
-        >
-          <Grid2 item lg={6} md={6} sm={10} xs={10}>
-            <Slider
-              value={typeof betAmount === 'number' ? betAmount : 0}
-              min={MIN_BET_AMOUNT}
-              max={MAX_BET_AMOUNT}
-              marks={[
-                {
-                  value: MIN_BET_AMOUNT,
-                  label: (
-                    <Button
-                      color="secondary"
-                      size="small"
-                      startIcon={<Iconify icon="mdi:dog" />}
-                      onClick={() => onChangeBetAmount(MIN_BET_AMOUNT)}
-                    >
-                      Cún
-                    </Button>
-                  ),
-                },
-                {
-                  value: 25,
-                  label: (
-                    <Button
-                      color="warning"
-                      size="small"
-                      startIcon={<Iconify icon="mdi:human-male" />}
-                      onClick={() => onChangeBetAmount(25)}
-                    >
-                      Người
-                    </Button>
-                  ),
-                },
-                {
-                  value: MAX_BET_AMOUNT,
-                  label: (
-                    <Button
-                      color="error"
-                      size="small"
-                      startIcon={<Iconify icon="mdi:emoticon-devil" />}
-                      onClick={() => onChangeBetAmount(MAX_BET_AMOUNT)}
-                    >
-                      Quỷ
-                    </Button>
-                  ),
-                },
-              ]}
-              onChange={(_, newVal) => onChangeBetAmount(newVal)}
-            />
-          </Grid2>
+                  <Label endIcon={<Iconify icon="material-symbols:poker-chip" />}>
+                    {user?.balance || 0}
+                  </Label>
+                </Stack>
 
-          <Grid2 item lg={4} md={4} sm={8} xs={10}>
-            <FormControl fullWidth>
-              <TextField
+                <Button
+                  endIcon={<Iconify icon="material-symbols:poker-chip" />}
+                  variant="outlined"
+                  color="warning"
+                  size="small"
+                  onClick={onOpenRechargeDialog}
+                >
+                  Nạp thêm
+                </Button>
+              </Stack>
+            )}
+          </Divider>
+
+          <Grid2
+            container
+            spacing={2}
+            justifyContent="space-evenly"
+            alignItems="center"
+            sx={{ pt: 2 }}
+          >
+            <Grid2 item lg={6} md={6} sm={10} xs={10}>
+              <Slider
                 value={betAmount}
-                variant="outlined"
-                label="Nhập tiền cược"
-                required
-                error={Boolean(err)}
-                helperText={err}
-                fullWidth
-                onChange={(e) => onChangeBetAmount(e.target.value)}
-                onBlur={onBlurBetAmount}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="start">
-                      <Iconify icon="material-symbols:poker-chip" />
-                    </InputAdornment>
-                  ),
-                }}
-                inputProps={{
-                  min: MIN_BET_AMOUNT,
-                  max: MAX_BET_AMOUNT,
-                  type: 'number',
-                }}
+                min={MIN_BET_AMOUNT}
+                max={MAX_BET_AMOUNT}
+                valueLabelDisplay='auto'
+                marks={[
+                  {
+                    value: MIN_BET_AMOUNT,
+                    label: (
+                      <Button
+                        color="secondary"
+                        size="small"
+                        startIcon={<Iconify icon="mdi:dog" />}
+                        onClick={() => onChangeBetAmount(MIN_BET_AMOUNT)}
+                      >
+                        Cún
+                      </Button>
+                    ),
+                  },
+                  {
+                    value: 25,
+                    label: (
+                      <Button
+                        color="warning"
+                        size="small"
+                        startIcon={<Iconify icon="mdi:human-male" />}
+                        onClick={() => onChangeBetAmount(25)}
+                      >
+                        Người
+                      </Button>
+                    ),
+                  },
+                  {
+                    value: MAX_BET_AMOUNT,
+                    label: (
+                      <Button
+                        color="error"
+                        size="small"
+                        startIcon={<Iconify icon="mdi:emoticon-devil" />}
+                        onClick={() => onChangeBetAmount(MAX_BET_AMOUNT)}
+                      >
+                        Quỷ
+                      </Button>
+                    ),
+                  },
+                ]}
+                onChange={(_, newVal) => onChangeBetAmount(newVal)}
               />
-              <FormHelperText component="div" />
-            </FormControl>
+            </Grid2>
+
+            <Grid2 item lg={4} md={4} sm={8} xs={10}>
+              <FormControl fullWidth>
+                <TextField
+                  value={betAmount}
+                  variant="outlined"
+                  label="Nhập tiền cược"
+                  required
+                  error={Boolean(err)}
+                  helperText={err}
+                  fullWidth
+                  onChange={(e) => onChangeBetAmount(e.target.value)}
+                  onBlur={onBlurBetAmount}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="start">
+                        <Iconify icon="material-symbols:poker-chip" />
+                      </InputAdornment>
+                    ),
+                  }}
+                  inputProps={{
+                    min: MIN_BET_AMOUNT,
+                    max: MAX_BET_AMOUNT,
+                    type: 'number',
+                  }}
+                />
+                <FormHelperText component="div" />
+              </FormControl>
+            </Grid2>
           </Grid2>
-        </Grid2>
+        </Stack>
       </DialogContent>
       <DialogActions>
         <Button type="submit" fullWidth variant="contained" color="info">

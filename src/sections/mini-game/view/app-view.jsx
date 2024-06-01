@@ -1,4 +1,5 @@
 import { useState, Fragment, useEffect } from 'react';
+import { motion, stagger, useAnimate } from 'framer-motion';
 
 import Container from '@mui/material/Container';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
@@ -7,33 +8,34 @@ import {
   Card,
   Stack,
   Paper,
-  Button,
   Avatar,
+  Button,
   Divider,
   ListItem,
   Typography,
   CardHeader,
   IconButton,
   CardContent,
+  CardActions,
   ListItemText,
   ListItemAvatar,
 } from '@mui/material';
 
 import useData from 'src/hooks/data';
 import useEventBus from 'src/hooks/event-bus';
-import { useResponsive } from 'src/hooks/use-responsive';
 
 import { MatchAPI } from 'src/api';
 
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import { Empty, Loader } from 'src/components/common';
+import { MatchVersus } from 'src/components/match-versus';
 
 // ----------------------------------------------------------------------
 
 export default function AppView() {
   const { $emit } = useEventBus();
-  const downSm = useResponsive('down', 'sm');
+  const [scope, animate] = useAnimate();
 
   const [match, setMatch] = useState();
 
@@ -49,7 +51,7 @@ export default function AppView() {
 
   const onOpenMiniGameRuleDialog = () => {
     $emit('@dialog.prediction-rules.action.open');
-  }
+  };
 
   useEffect(() => {
     const loadComingMatch = () => {
@@ -61,9 +63,29 @@ export default function AppView() {
     loadComingMatch();
   }, []);
 
+  useEffect(() => {
+    const onAnimate = async () => {
+      await animate(
+        'span',
+        { y: -4 },
+        {
+          delay: stagger(0.1),
+          repeat: Infinity,
+          repeatType: 'reverse',
+        }
+      );
+    };
+
+    onAnimate();
+
+    // return () => {
+    //   clearInterval(interval)
+    // }
+  }, [animate]);
+
   return (
     <Container>
-      <Stack alignItems="center" spacing={2}>
+      <Stack alignItems="center" spacing={1}>
         <Stack direction="row" alignItems="center" spacing={1}>
           <Typography
             variant="h3"
@@ -80,6 +102,7 @@ export default function AppView() {
         </Stack>
 
         <Paper
+          elevation={6}
           variant="outlined"
           sx={{
             p: 2,
@@ -96,15 +119,21 @@ export default function AppView() {
             borderStyle: 'dashed',
           }}
         >
-          <Typography
-            variant="h2"
-            color="error"
-            sx={{
-              fontFamily: 'Ruslan Display',
-            }}
-          >
-            Jackpot
-          </Typography>
+          <Stack direction="row" justifyContent="center" ref={scope} spacing={0.5}>
+            {['J', 'a', 'c', 'k', 'p', 'o', 't'].map((char, index) => (
+              <Typography
+                key={index}
+                component={motion.span}
+                variant="h2"
+                color="error"
+                sx={{
+                  fontFamily: 'Ruslan Display',
+                }}
+              >
+                {char}
+              </Typography>
+            ))}
+          </Stack>
 
           <Stack direction="row" alignItems="center" justifyContent="center" spacing={1}>
             <Typography
@@ -116,68 +145,38 @@ export default function AppView() {
               {pagination?.total || 0}
             </Typography>
 
-            <Iconify icon="material-symbols:poker-chip" sx={{ width: 32, height: 32 }} />
+            <Iconify icon="material-symbols:poker-chip" sx={{ width: 32, height: 32 }}  />
           </Stack>
         </Paper>
 
-        {match && (
-          <Grid2
-            container
-            alignItems="center"
-            spacing={2}
-            sx={{
-              width: '100%',
-              maxWidth: {
-                lg: 512,
-                md: 512,
-                sm: 360,
-                xs: '100%',
-              },
-            }}
-          >
-            <Grid2 item lg={4} md={4} sm={4} xs={3.5}>
-              <Stack alignItems="center" justifyContent="center">
-                <Iconify icon={`flag:${match.firstTeamFlag}`} sx={{ height: 32, width: 32 }} />
-                <Typography
-                    variant={downSm ? 'caption' : 'subtitle2'}
-                    sx={{ textAlign: 'center' }}
-                  >
-                    {match?.topTeamName === match?.firstTeamName ? (
-                      <mark>
-                        <strong>{match?.firstTeamName}</strong>
-                      </mark>
-                    ) : (
-                      match?.firstTeamName
-                    )}
-                  </Typography>
-              </Stack>
-            </Grid2>
-
-            <Grid2 item lg={4} md={4} sm={4} xs={5}>
-              <Button variant="outlined" size="small" fullWidth onClick={onOpenPredictionDialog}>
+        <Card
+          elevation={6}
+          sx={{
+            width: '100%',
+            maxWidth: {
+              lg: 512,
+              md: 512,
+              sm: 360,
+              xs: '100%',
+            },
+          }}
+        >
+          <CardHeader
+            title={
+              <Typography textAlign="center" variant="h6">
+                Trận đấu
+              </Typography>
+            }
+          />
+          <CardContent>
+            <MatchVersus match={match} showVersus />
+          </CardContent>
+          <CardActions>
+            <Button fullWidth variant="contained">
               Dự đoán (1 <Iconify icon="material-symbols:poker-chip" />)
-              </Button>
-            </Grid2>
-
-            <Grid2 item lg={4} md={4} sm={4} xs={3.5}>
-              <Stack alignItems="center" justifyContent="center" gap={0.5}>
-                <Iconify icon={`flag:${match.secondTeamFlag}`} sx={{ height: 32, width: 32 }} />
-                <Typography
-                    variant={downSm ? 'caption' : 'subtitle2'}
-                    sx={{ textAlign: 'center' }}
-                  >
-                    {match?.topTeamName === match?.secondTeamName ? (
-                      <mark>
-                        <strong>{match?.secondTeamName}</strong>
-                      </mark>
-                    ) : (
-                      match?.secondTeamName
-                    )}
-                  </Typography>
-              </Stack>
-            </Grid2>
-          </Grid2>
-        )}
+            </Button>
+          </CardActions>
+        </Card>
 
         <Card
           sx={{

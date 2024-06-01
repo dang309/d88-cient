@@ -1,7 +1,12 @@
-import { useState } from 'react';
+import qs from 'qs';
 import PropTypes from 'prop-types';
+import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
+
+import useData from 'src/hooks/data';
+import useAuth from 'src/hooks/auth';
+import useEventBus from 'src/hooks/event-bus';
 
 import BetDialog from 'src/components/@dialogs/bet';
 import RechargeDialog from 'src/components/@dialogs/recharge';
@@ -16,7 +21,35 @@ import Header from './header';
 // ----------------------------------------------------------------------
 
 export default function DashboardLayout({ children }) {
+  const { user } = useAuth();
+  const { $emit } = useEventBus();
+  const { items: predictionResult } = useData(
+    `/prediction-results?${qs.stringify({
+      fields: ['prize'],
+      populate: {
+        winner: {
+          fields: ['id'],
+        },
+        match: {
+          fields: ['id', 'firstTeamName', 'firstTeamFlag', 'secondTeamName', 'secondTeamFlag'],
+        },
+      },
+    })}`
+  );
+
   const [openNav, setOpenNav] = useState(false);
+
+  const onCheckPredictionWinner = useCallback(() => {
+    if (predictionResult) {
+      const idx = predictionResult.findIndex((item) => user && item.winner?.id === user.id);
+      if (idx > -1)
+        return $emit('@dialog.congratulation.action.open', { match: predictionResult.match });
+    }
+  }, [predictionResult, user, $emit]);
+
+  useEffect(() => {
+    onCheckPredictionWinner();
+  }, [onCheckPredictionWinner]);
 
   return (
     <>
@@ -38,6 +71,7 @@ export default function DashboardLayout({ children }) {
         <BetDialog />
         <PredictionDialog />
         <PredictionRuleDialog />
+        {/* <CongratulationDialog /> */}
       </Box>
     </>
   );

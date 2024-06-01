@@ -1,0 +1,1 @@
+export { default as MatchVersus } from './match-versus'

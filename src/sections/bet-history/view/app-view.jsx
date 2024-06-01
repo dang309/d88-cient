@@ -45,11 +45,9 @@ export default function BetHistoryPage() {
       : undefined
   );
 
-
   const [order, setOrder] = useState('asc');
 
   const [orderBy, setOrderBy] = useState('name');
-
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -58,15 +56,6 @@ export default function BetHistoryPage() {
       setOrderBy(id);
     }
   };
-
-  // const handleChangePage = (event, newPage) => {
-  //   setPage(newPage);
-  // };
-
-  // const handleChangeRowsPerPage = (event) => {
-  //   setPage(0);
-  //   setRowsPerPage(parseInt(event.target.value, 10));
-  // };
 
   const dataFiltered = applyFilter({
     inputData: bets,
@@ -89,27 +78,15 @@ export default function BetHistoryPage() {
                 headLabel={HEAD_LABELS}
               />
               <TableBody>
-                {dataFiltered
-                  .map((row) => (
-                    <MyTableRow key={row.id} row={row} />
-                  ))}
+                {dataFiltered.map((row) => (
+                  <MyTableRow key={row.id} row={row} />
+                ))}
 
                 {notFound && <MyTableNoData />}
               </TableBody>
             </Table>
           </TableContainer>
         </Scrollbar>
-
-        {/* <TablePagination
-          page={page}
-          component="div"
-          count={bets?.length || 0}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          rowsPerPageOptions={[5, 10, 25]}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          labelRowsPerPage="Số hàng mỗi trang"
-        /> */}
       </Card>
     </Container>
   );

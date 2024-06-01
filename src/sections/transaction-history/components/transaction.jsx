@@ -19,7 +19,7 @@ export default function Transaction({ item, lastTimeline }) {
     <TimelineItem>
       <TimelineOppositeContent color="text.secondary" variant="subtitle2">
         <Label startIcon={<Iconify icon="mingcute:time-line" />} variant="ghost">
-        {moment(createdAt).format('DD/MM HH:mm')}
+        {moment(createdAt).format('DD/MM HH:mm:ss')}
         </Label>
       </TimelineOppositeContent>
       <TimelineSeparator>

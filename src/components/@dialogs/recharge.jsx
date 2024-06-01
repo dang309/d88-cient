@@ -43,7 +43,7 @@ export default function RechargeDialog() {
         <Stack direction="row" alignItems="center" spacing={2}>
           <Typography variant="h6">Nạp chip</Typography>
           <Label color="error" sx={{ textTransform: 'none' }}>
-            Nạp lần đầu x2 chip
+            Nạp lần đầu + 70%
           </Label>
         </Stack>
 
