@@ -49,7 +49,7 @@ export default function BetDialog(props) {
   const { enqueueSnackbar } = useSnackbar();
   const { $emit, $on } = useEventBus();
 
-  const smDown = useResponsive('down', 'sm');
+  const downSm = useResponsive('down', 'sm');
 
   const [betValue, setBetValue] = React.useState();
   const [betAmount, setBetAmount] = React.useState(1);
@@ -170,18 +170,9 @@ export default function BetDialog(props) {
           <Grid2 item lg={3} md={4} sm={4} xs={4}>
             <Stack alignItems="center" justifyContent="center">
               <Iconify icon={`flag:${match?.firstTeamFlag}`} sx={{ height: 32, width: 32 }} />
-              {match?.topTeamName === match?.firstTeamName ? (
-                <Label
-                  color="error"
-                  startIcon={<Iconify icon="fluent-emoji-high-contrast:top-arrow" />}
-                >
-                  {match?.firstTeamName}
-                </Label>
-              ) : (
-                <Typography variant="subtitle2" sx={{ textAlign: 'center' }}>
-                  {match?.firstTeamName}
-                </Typography>
-              )}
+              <Typography variant={downSm ? 'caption' : 'subtitle2'} sx={{ textAlign: 'center' }}>
+                {match?.topTeamName === match?.firstTeamName ? <mark><strong>{match?.firstTeamName}</strong></mark> : match?.firstTeamName}
+              </Typography>
             </Stack>
           </Grid2>
 
@@ -196,18 +187,9 @@ export default function BetDialog(props) {
           <Grid2 item lg={3} md={4} sm={4} xs={4}>
             <Stack alignItems="center" justifyContent="center">
               <Iconify icon={`flag:${match?.secondTeamFlag}`} sx={{ height: 32, width: 32 }} />
-              {match?.topTeamName === match?.secondTeamName ? (
-                <Label
-                  color="error"
-                  startIcon={<Iconify icon="fluent-emoji-high-contrast:top-arrow" />}
-                >
-                  {match?.secondTeamName}
-                </Label>
-              ) : (
-                <Typography variant="subtitle2" sx={{ textAlign: 'center' }}>
-                  {match?.secondTeamName}
-                </Typography>
-              )}
+              <Typography variant={downSm ? 'caption' : 'subtitle2'} sx={{ textAlign: 'center' }}>
+                {match?.topTeamName === match?.secondTeamName ? <mark><strong>{match?.secondTeamName}</strong></mark> : match?.secondTeamName}
+              </Typography>
             </Stack>
           </Grid2>
         </Grid2>
@@ -277,15 +259,15 @@ export default function BetDialog(props) {
                     sx={{ width: '100%' }}
                   >
                     <Stack
-                      direction={smDown ? 'column' : 'row'}
+                      direction={downSm ? 'column' : 'row'}
                       alignItems="center"
-                      spacing={smDown ? 0 : 1}
+                      spacing={downSm ? 0 : 1}
                     >
                       <Iconify
                         icon={`flag:${match?.firstTeamFlag}`}
                         sx={{ height: 32, width: 32 }}
                       />
-                      <Typography variant={smDown ? 'caption' : 'subtitle2'}>
+                      <Typography variant={downSm ? 'caption' : 'subtitle2'}>
                         {match?.firstTeamName}
                       </Typography>
                     </Stack>
@@ -305,11 +287,11 @@ export default function BetDialog(props) {
                       {match?.handicap?.secondTeamWinRate.toFixed(1) || 0}
                     </Typography>
                     <Stack
-                      direction={smDown ? 'column-reverse' : 'row'}
+                      direction={downSm ? 'column-reverse' : 'row'}
                       alignItems="center"
-                      spacing={smDown ? 0 : 1}
+                      spacing={downSm ? 0 : 1}
                     >
-                      <Typography variant={smDown ? 'caption' : 'subtitle2'}>
+                      <Typography variant={downSm ? 'caption' : 'subtitle2'}>
                         {match?.secondTeamName}
                       </Typography>
                       <Iconify

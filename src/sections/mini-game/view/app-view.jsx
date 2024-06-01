@@ -21,6 +21,7 @@ import {
 
 import useData from 'src/hooks/data';
 import useEventBus from 'src/hooks/event-bus';
+import { useResponsive } from 'src/hooks/use-responsive';
 
 import { MatchAPI } from 'src/api';
 
@@ -32,6 +33,7 @@ import { Empty, Loader } from 'src/components/common';
 
 export default function AppView() {
   const { $emit } = useEventBus();
+  const downSm = useResponsive('down', 'sm');
 
   const [match, setMatch] = useState();
 
@@ -136,18 +138,18 @@ export default function AppView() {
             <Grid2 item lg={4} md={4} sm={4} xs={3.5}>
               <Stack alignItems="center" justifyContent="center">
                 <Iconify icon={`flag:${match.firstTeamFlag}`} sx={{ height: 32, width: 32 }} />
-                {match?.topTeamName === match?.firstTeamName ? (
-                  <Label
-                    color="error"
-                    startIcon={<Iconify icon="fluent-emoji-high-contrast:top-arrow" />}
+                <Typography
+                    variant={downSm ? 'caption' : 'subtitle2'}
+                    sx={{ textAlign: 'center' }}
                   >
-                    {match?.firstTeamName}
-                  </Label>
-                ) : (
-                  <Typography variant="subtitle2" sx={{ textAlign: 'center' }}>
-                    {match?.firstTeamName}
+                    {match?.topTeamName === match?.firstTeamName ? (
+                      <mark>
+                        <strong>{match?.firstTeamName}</strong>
+                      </mark>
+                    ) : (
+                      match?.firstTeamName
+                    )}
                   </Typography>
-                )}
               </Stack>
             </Grid2>
 
@@ -160,18 +162,18 @@ export default function AppView() {
             <Grid2 item lg={4} md={4} sm={4} xs={3.5}>
               <Stack alignItems="center" justifyContent="center" gap={0.5}>
                 <Iconify icon={`flag:${match.secondTeamFlag}`} sx={{ height: 32, width: 32 }} />
-                {match?.topTeamName === match?.secondTeamName ? (
-                  <Label
-                    color="error"
-                    startIcon={<Iconify icon="fluent-emoji-high-contrast:top-arrow" />}
+                <Typography
+                    variant={downSm ? 'caption' : 'subtitle2'}
+                    sx={{ textAlign: 'center' }}
                   >
-                    {match?.secondTeamName}
-                  </Label>
-                ) : (
-                  <Typography variant="subtitle2" sx={{ textAlign: 'center' }}>
-                    {match?.secondTeamName}
+                    {match?.topTeamName === match?.secondTeamName ? (
+                      <mark>
+                        <strong>{match?.secondTeamName}</strong>
+                      </mark>
+                    ) : (
+                      match?.secondTeamName
+                    )}
                   </Typography>
-                )}
               </Stack>
             </Grid2>
           </Grid2>

@@ -9,15 +9,15 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
+import { Stack, Typography, IconButton } from '@mui/material';
 import DialogContentText from '@mui/material/DialogContentText';
-import { Stack, Typography, IconButton, ButtonGroup } from '@mui/material';
 
 import useAuth from 'src/hooks/auth';
 import useEventBus from 'src/hooks/event-bus';
+import { useResponsive } from 'src/hooks/use-responsive';
 
 import { PredictionAPI } from 'src/api';
 
-import Label from '../label';
 import Iconify from '../iconify';
 
 export default function PredictionDialog() {
@@ -25,6 +25,7 @@ export default function PredictionDialog() {
   const { user, initialize } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
   const { mutate } = useSWRConfig();
+  const downSm = useResponsive('down', 'sm');
 
   const [match, setMatch] = React.useState();
   const [open, setOpen] = React.useState(false);
@@ -90,7 +91,7 @@ export default function PredictionDialog() {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle id="alert-dialog-title">
-      Dự đoán tỉ số
+        Dự đoán tỉ số
         <IconButton
           aria-label="close"
           onClick={onClose}
@@ -98,11 +99,11 @@ export default function PredictionDialog() {
             position: 'absolute',
             right: {
               lg: 16,
-              xs: 8
+              xs: 8,
             },
             top: {
               lg: 16,
-              xs: 8
+              xs: 8,
             },
           }}
         >
@@ -125,29 +126,29 @@ export default function PredictionDialog() {
             spacing={2}
           >
             <Grid2 item lg={4} xs>
-              <Stack direction="row" spacing={2}>
+              <Stack direction="row" justifyContent='flex-end' spacing={2}>
                 <Stack alignItems="center" justifyContent="center">
                   <Iconify icon={`flag:${match.firstTeamFlag}`} sx={{ height: 32, width: 32 }} />
-                  {match?.topTeamName === match?.firstTeamName ? (
-                    <Label
-                      color="error"
-                      startIcon={<Iconify icon="fluent-emoji-high-contrast:top-arrow" />}
-                    >
-                      {match?.firstTeamName}
-                    </Label>
-                  ) : (
-                    <Typography variant="subtitle2" sx={{ textAlign: 'center' }}>
-                      {match?.firstTeamName}
-                    </Typography>
-                  )}
+                  <Typography
+                    variant={downSm ? 'caption' : 'subtitle2'}
+                    sx={{ textAlign: 'center' }}
+                  >
+                    {match?.topTeamName === match?.firstTeamName ? (
+                      <mark>
+                        <strong>{match?.firstTeamName}</strong>
+                      </mark>
+                    ) : (
+                      match?.firstTeamName
+                    )}
+                  </Typography>
                 </Stack>
-                <ButtonGroup orientation="vertical" fullWidth>
+                <Stack>
                   <Stack alignItems="center">
                     <IconButton key="one" onClick={() => onChangeFirstTeamScorePrediction('plus')}>
-                      <Iconify icon="line-md:arrow-small-up" />
+                      <Iconify icon="line-md:arrow-small-up" sx={{ width: 20, height: 20 }} />
                     </IconButton>
                   </Stack>
-                  <Button key="two" disabled>
+                  <Button variant="outlined" size="small" disabled>
                     {firstTeamScorePrediction}
                   </Button>
                   <Stack alignItems="center">
@@ -155,7 +156,7 @@ export default function PredictionDialog() {
                       <Iconify icon="line-md:arrow-small-down" />
                     </IconButton>
                   </Stack>
-                </ButtonGroup>
+                </Stack>
               </Stack>
             </Grid2>
 
@@ -166,17 +167,17 @@ export default function PredictionDialog() {
             </Grid2>
 
             <Grid2 item lg={4} xs>
-              <Stack direction="row" spacing={2}>
-                <ButtonGroup orientation="vertical" fullWidth>
+              <Stack direction="row" justifyContent='flex-start' spacing={1}>
+                <Stack>
                   <Stack
                     alignItems="center"
                     onClick={() => onChangeSecondTeamScorePrediction('plus')}
                   >
                     <IconButton key="one">
-                      <Iconify icon="line-md:arrow-small-up" />
+                      <Iconify icon="line-md:arrow-small-up" sx={{ width: 20, height: 20 }} />
                     </IconButton>
                   </Stack>
-                  <Button key="two" disabled>
+                  <Button variant="outlined" size="small" disabled>
                     {secondTeamScorePrediction}
                   </Button>
                   <Stack alignItems="center">
@@ -187,21 +188,21 @@ export default function PredictionDialog() {
                       <Iconify icon="line-md:arrow-small-down" />
                     </IconButton>
                   </Stack>
-                </ButtonGroup>
+                </Stack>
                 <Stack alignItems="center" justifyContent="center" gap={0.5}>
                   <Iconify icon={`flag:${match.secondTeamFlag}`} sx={{ height: 32, width: 32 }} />
-                  {match?.topTeamName === match?.secondTeamName ? (
-                    <Label
-                      color="error"
-                      startIcon={<Iconify icon="fluent-emoji-high-contrast:top-arrow" />}
-                    >
-                      {match?.secondTeamName}
-                    </Label>
-                  ) : (
-                    <Typography variant="subtitle2" sx={{ textAlign: 'center' }}>
-                      {match?.secondTeamName}
-                    </Typography>
-                  )}
+                  <Typography
+                    variant={downSm ? 'caption' : 'subtitle2'}
+                    sx={{ textAlign: 'center' }}
+                  >
+                    {match?.topTeamName === match?.secondTeamName ? (
+                      <mark>
+                        <strong>{match?.secondTeamName}</strong>
+                      </mark>
+                    ) : (
+                      match?.secondTeamName
+                    )}
+                  </Typography>
                 </Stack>
               </Stack>
             </Grid2>
