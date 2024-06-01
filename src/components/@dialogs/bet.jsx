@@ -106,9 +106,9 @@ export default function BetDialog(props) {
     const newBet = {
       user: user.id,
       match: match.id,
-      betType: tab === TAB.HANDICAP ? 'handicap' : 'overUnder',
-      betValue,
-      betAmount,
+      type: tab === TAB.HANDICAP ? 'handicap' : 'overUnder',
+      value: betValue,
+      amount: betAmount,
     };
 
     return BetAPI.create(newBet)

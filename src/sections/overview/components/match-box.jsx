@@ -5,12 +5,14 @@ import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Card, Stack, Button, Typography, CardContent, CardActions } from '@mui/material';
 
 import useEventBus from 'src/hooks/event-bus';
+import { useResponsive } from 'src/hooks/use-responsive';
 
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 
 const MatchBox = ({ match }) => {
   const { $emit } = useEventBus();
+  const downSm = useResponsive('down', 'sm');
 
   const onOpenBetDialog = () => $emit('@dialog.bet.action.open', { match });
 
@@ -18,20 +20,21 @@ const MatchBox = ({ match }) => {
     <Card>
       <CardContent>
         <Grid2 container justifyContent="space-evenly" alignItems="start" spacing={2}>
-          <Grid2 item lg={4}>
+          <Grid2 item lg={4} md={4} sm={4} xs={4}>
             <Stack alignItems="center" justifyContent="center">
-              <Iconify icon={`flag:${match.firstTeamFlag}`} sx={{ height: 32, width: 32 }} />
-              {match?.topTeamName === match?.firstTeamName ? (
-                <Label color="error" startIcon={<Iconify icon="fluent-emoji-high-contrast:top-arrow" />}>{match?.firstTeamName}</Label>
-              ) : (
-                <Typography variant="subtitle2" sx={{ textAlign: 'center' }}>
-                  {match?.firstTeamName}
-                </Typography>
+              {match?.topTeamName === match?.firstTeamName && (
+                <Label color="error">
+                  <Iconify icon="fluent-emoji-high-contrast:top-arrow" />
+                </Label>
               )}
+              <Iconify icon={`flag:${match.firstTeamFlag}`} sx={{ height: 32, width: 32 }} />
+              <Typography variant={downSm ? 'caption' : 'subtitle2'} sx={{ textAlign: 'center' }}>
+                {match?.firstTeamName}
+              </Typography>
             </Stack>
           </Grid2>
 
-          <Grid2 item lg={2}>
+          <Grid2 item lg={2} md={2} sm={3} xs={4}>
             <Stack alignItems="center" spacing={1}>
               <Label color="info">Vòng bảng</Label>
 
@@ -52,16 +55,17 @@ const MatchBox = ({ match }) => {
             </Stack>
           </Grid2>
 
-          <Grid2 item lg={4}>
-            <Stack alignItems="center" justifyContent="center" gap={0.5}>
-              <Iconify icon={`flag:${match.secondTeamFlag}`} sx={{ height: 32, width: 32 }} />
-              {match?.topTeamName === match?.secondTeamName ? (
-                <Label color="error" startIcon={<Iconify icon="fluent-emoji-high-contrast:top-arrow" />}>{match?.secondTeamName}</Label>
-              ) : (
-                <Typography variant="subtitle2" sx={{ textAlign: 'center' }}>
-                  {match?.secondTeamName}
-                </Typography>
+          <Grid2 item lg={4} md={4} sm={4} xs={4}>
+            <Stack alignItems="center" justifyContent="center">
+              {match?.topTeamName === match?.secondTeamName && (
+                <Label color="error">
+                  <Iconify icon="fluent-emoji-high-contrast:top-arrow" />
+                </Label>
               )}
+              <Iconify icon={`flag:${match.secondTeamFlag}`} sx={{ height: 32, width: 32 }} />
+              <Typography variant={downSm ? 'caption' : 'subtitle2'} sx={{ textAlign: 'center' }}>
+                {match?.secondTeamName}
+              </Typography>
             </Stack>
           </Grid2>
         </Grid2>

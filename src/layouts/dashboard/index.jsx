@@ -7,6 +7,7 @@ import BetDialog from 'src/components/@dialogs/bet';
 import RechargeDialog from 'src/components/@dialogs/recharge';
 import PredictionDialog from 'src/components/@dialogs/prediction';
 import AuthenticationDialog from 'src/components/@dialogs/authentication';
+import PredictionRuleDialog from 'src/components/@dialogs/prediction-rule';
 
 import Nav from './nav';
 import Main from './main';
@@ -36,6 +37,7 @@ export default function DashboardLayout({ children }) {
         <AuthenticationDialog />
         <BetDialog />
         <PredictionDialog />
+        <PredictionRuleDialog />
       </Box>
     </>
   );

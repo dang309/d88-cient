@@ -1,16 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState, Fragment, useEffect } from 'react';
 
-import { grey } from '@mui/material/colors';
 import Container from '@mui/material/Container';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import {
   List,
+  Card,
   Stack,
   Paper,
   Button,
   Avatar,
+  Divider,
   ListItem,
   Typography,
+  CardHeader,
+  IconButton,
+  CardContent,
   ListItemText,
   ListItemAvatar,
 } from '@mui/material';
@@ -28,18 +32,27 @@ import { Empty, Loader } from 'src/components/common';
 
 export default function AppView() {
   const { $emit } = useEventBus();
-  const { items: predictions, isLoading } = useData('/predictions?populate=*');
 
   const [match, setMatch] = useState();
+
+  const {
+    items: predictions,
+    pagination,
+    isLoading,
+  } = useData(match ? `/predictions?populate=*&filters[match][id][$eq]=${match.id}` : null);
 
   const onOpenPredictionDialog = () => {
     $emit('@dialog.prediction.action.open', { match });
   };
 
+  const onOpenMiniGameRuleDialog = () => {
+    $emit('@dialog.prediction-rules.action.open');
+  }
+
   useEffect(() => {
     const loadComingMatch = () => {
       MatchAPI.getComingMatch().then((res) => {
-        setMatch(res.data.data);
+        setMatch(res?.data?.data);
       });
     };
 
@@ -49,14 +62,20 @@ export default function AppView() {
   return (
     <Container>
       <Stack alignItems="center" spacing={2}>
-        <Typography
-          variant="h3"
-          sx={{
-            fontFamily: 'Chakra Petch',
-          }}
-        >
-          Dự đoán tỉ số
-        </Typography>
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Typography
+            variant="h3"
+            sx={{
+              fontFamily: 'Chakra Petch',
+            }}
+          >
+            Dự đoán tỉ số
+          </Typography>
+
+          <IconButton onClick={onOpenMiniGameRuleDialog}>
+            <Iconify icon="line-md:question-circle" />
+          </IconButton>
+        </Stack>
 
         <Paper
           variant="outlined"
@@ -92,10 +111,10 @@ export default function AppView() {
                 fontFamily: 'Jaro',
               }}
             >
-              {10}
+              {pagination?.total || 0}
             </Typography>
 
-            <Iconify icon="material-symbols:poker-chip" />
+            <Iconify icon="material-symbols:poker-chip" sx={{ width: 32, height: 32 }} />
           </Stack>
         </Paper>
 
@@ -114,7 +133,7 @@ export default function AppView() {
               },
             }}
           >
-            <Grid2 item lg={4} md={4} sm={4} xs={4}>
+            <Grid2 item lg={4} md={4} sm={4} xs={3.5}>
               <Stack alignItems="center" justifyContent="center">
                 <Iconify icon={`flag:${match.firstTeamFlag}`} sx={{ height: 32, width: 32 }} />
                 {match?.topTeamName === match?.firstTeamName ? (
@@ -132,13 +151,13 @@ export default function AppView() {
               </Stack>
             </Grid2>
 
-            <Grid2 item lg={4} md={4} sm={4} xs={4}>
+            <Grid2 item lg={4} md={4} sm={4} xs={5}>
               <Button variant="outlined" size="small" fullWidth onClick={onOpenPredictionDialog}>
-                Dự đoán
+              Dự đoán (1 <Iconify icon="material-symbols:poker-chip" />)
               </Button>
             </Grid2>
 
-            <Grid2 item lg={4} md={4} sm={4} xs={4}>
+            <Grid2 item lg={4} md={4} sm={4} xs={3.5}>
               <Stack alignItems="center" justifyContent="center" gap={0.5}>
                 <Iconify icon={`flag:${match.secondTeamFlag}`} sx={{ height: 32, width: 32 }} />
                 {match?.topTeamName === match?.secondTeamName ? (
@@ -158,7 +177,7 @@ export default function AppView() {
           </Grid2>
         )}
 
-        <List
+        <Card
           sx={{
             width: '100%',
             maxWidth: {
@@ -167,63 +186,76 @@ export default function AppView() {
               sm: 360,
               xs: '100%',
             },
-            bgcolor: 'transparent',
-            borderWidth: 1,
-            borderStyle: 'solid',
-            borderColor: grey[400],
-            borderRadius: 2,
           }}
         >
-          {predictions &&
-            predictions.map((prediction) => (
-              <ListItem key={prediction.id} alignItems="flex-start">
-                <ListItemAvatar>
-                  <Avatar alt={prediction?.user?.username} src={prediction?.user?.avatarUrl} />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={
-                    <Stack direction="row" alignItems="center" spacing={0.7}>
-                      <Typography variant="subtitle2">{prediction?.user?.username}</Typography>
-                      <Typography variant="caption">đã dự đoán</Typography>
-                    </Stack>
-                  }
-                  secondary={
-                    <Grid2 container justifyContent="flex-start" alignItems="center" spacing={1}>
-                      <Grid2 item lg="auto" md="auto" sm="auto" xs="auto">
-                        <Stack alignItems="center">
-                          <Iconify
-                            icon={`flag:${prediction?.match?.firstTeamFlag}`}
-                            sx={{ height: 24, width: 24 }}
-                          />
-                        </Stack>
-                      </Grid2>
+          <CardHeader title="Danh sách dự đoán" />
+          <CardContent>
+            <List disablePadding>
+              {predictions &&
+                predictions.map((prediction, index) => (
+                  <Fragment key={prediction.id}>
+                    <ListItem alignItems="flex-start">
+                      <ListItemAvatar>
+                        <Avatar
+                          alt={prediction?.user?.username}
+                          src={prediction?.user?.avatarUrl}
+                        />
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={
+                          <Stack direction="row" alignItems="center" spacing={0.7}>
+                            <Typography variant="subtitle2">
+                              {prediction?.user?.username}
+                            </Typography>
+                            <Typography variant="caption">đã dự đoán</Typography>
+                          </Stack>
+                        }
+                        secondary={
+                          <Grid2
+                            container
+                            justifyContent="flex-start"
+                            alignItems="center"
+                            spacing={1}
+                          >
+                            <Grid2 item lg="auto" md="auto" sm="auto" xs="auto">
+                              <Stack alignItems="center">
+                                <Iconify
+                                  icon={`flag:${prediction?.match?.firstTeamFlag}`}
+                                  sx={{ height: 24, width: 24 }}
+                                />
+                              </Stack>
+                            </Grid2>
 
-                      <Grid2 item lg="auto" md="auto" sm="auto" xs="auto">
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                          <Label>{prediction?.firstTeamScore || 0}</Label>
-                          <Typography>:</Typography>
-                          <Label>{prediction?.secondTeamScore || 0}</Label>
-                        </Stack>
-                      </Grid2>
+                            <Grid2 item lg="auto" md="auto" sm="auto" xs="auto">
+                              <Stack direction="row" alignItems="center" spacing={1}>
+                                <Label>{prediction?.firstTeamScore || 0}</Label>
+                                <Typography>:</Typography>
+                                <Label>{prediction?.secondTeamScore || 0}</Label>
+                              </Stack>
+                            </Grid2>
 
-                      <Grid2 item lg="auto" md="auto" sm="auto" xs="auto">
-                        <Stack alignItems="center">
-                          <Iconify
-                            icon={`flag:${prediction?.match?.secondTeamFlag}`}
-                            sx={{ height: 24, width: 24 }}
-                          />
-                        </Stack>
-                      </Grid2>
-                    </Grid2>
-                  }
-                />
-              </ListItem>
-            ))}
+                            <Grid2 item lg="auto" md="auto" sm="auto" xs="auto">
+                              <Stack alignItems="center">
+                                <Iconify
+                                  icon={`flag:${prediction?.match?.secondTeamFlag}`}
+                                  sx={{ height: 24, width: 24 }}
+                                />
+                              </Stack>
+                            </Grid2>
+                          </Grid2>
+                        }
+                      />
+                    </ListItem>
+                    {index !== predictions.length - 1 && <Divider variant="inset" />}
+                  </Fragment>
+                ))}
 
-          {isLoading && <Loader />}
+              {isLoading && <Loader />}
 
-          {!isLoading && !predictions?.length && <Empty text="Chưa có dự đoán" />}
-        </List>
+              {!isLoading && !predictions?.length && <Empty text="Chưa có dự đoán" />}
+            </List>
+          </CardContent>
+        </Card>
       </Stack>
     </Container>
   );

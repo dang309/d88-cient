@@ -6,7 +6,6 @@ import Table from '@mui/material/Table';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
-import TablePagination from '@mui/material/TablePagination';
 
 import useData from 'src/hooks/data';
 import useAuth from 'src/hooks/auth';
@@ -15,9 +14,8 @@ import Scrollbar from 'src/components/scrollbar';
 
 import MyTableRow from '../components/my-table-row';
 import MyTableHead from '../components/my-table-head';
-import MyEmptyRows from '../components/my-empty-rows';
 import MyTableNoData from '../components/my-table-no-data';
-import { emptyRows, applyFilter, getComparator } from '../components/utils';
+import { applyFilter, getComparator } from '../components/utils';
 
 // ----------------------------------------------------------------------
 
@@ -38,6 +36,7 @@ export default function BetHistoryPage() {
     user
       ? `/bets?${qs.stringify({
           populate: ['match', 'user'],
+          sort: ['createdAt:desc'],
           filters: {
             user: {
               id: user.id,
@@ -47,13 +46,11 @@ export default function BetHistoryPage() {
       : undefined
   );
 
-  const [page, setPage] = useState(0);
 
   const [order, setOrder] = useState('asc');
 
   const [orderBy, setOrderBy] = useState('name');
 
-  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -63,14 +60,14 @@ export default function BetHistoryPage() {
     }
   };
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
+  // const handleChangePage = (event, newPage) => {
+  //   setPage(newPage);
+  // };
 
-  const handleChangeRowsPerPage = (event) => {
-    setPage(0);
-    setRowsPerPage(parseInt(event.target.value, 10));
-  };
+  // const handleChangeRowsPerPage = (event) => {
+  //   setPage(0);
+  //   setRowsPerPage(parseInt(event.target.value, 10));
+  // };
 
   const dataFiltered = applyFilter({
     inputData: bets,
@@ -94,12 +91,9 @@ export default function BetHistoryPage() {
               />
               <TableBody>
                 {dataFiltered
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <MyTableRow key={row.id} row={row} />
                   ))}
-
-                <MyEmptyRows height={77} emptyRows={emptyRows(page, rowsPerPage, bets?.length)} />
 
                 {notFound && <MyTableNoData />}
               </TableBody>
@@ -107,7 +101,7 @@ export default function BetHistoryPage() {
           </TableContainer>
         </Scrollbar>
 
-        <TablePagination
+        {/* <TablePagination
           page={page}
           component="div"
           count={bets?.length || 0}
@@ -116,7 +110,7 @@ export default function BetHistoryPage() {
           rowsPerPageOptions={[5, 10, 25]}
           onRowsPerPageChange={handleChangeRowsPerPage}
           labelRowsPerPage="Số hàng mỗi trang"
-        />
+        /> */}
       </Card>
     </Container>
   );

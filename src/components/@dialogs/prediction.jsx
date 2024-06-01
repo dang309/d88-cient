@@ -1,4 +1,6 @@
+import _ from 'lodash';
 import * as React from 'react';
+import { useSWRConfig } from 'swr';
 import { useSnackbar } from 'notistack';
 
 import Button from '@mui/material/Button';
@@ -22,6 +24,7 @@ export default function PredictionDialog() {
   const { $on } = useEventBus();
   const { user, initialize } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
+  const { mutate } = useSWRConfig();
 
   const [match, setMatch] = React.useState();
   const [open, setOpen] = React.useState(false);
@@ -34,8 +37,8 @@ export default function PredictionDialog() {
 
   const onClose = () => {
     setOpen(false);
-    setFirstTeamScorePrediction(0)
-    setSecondTeamScorePrediction(0)
+    setFirstTeamScorePrediction(0);
+    setSecondTeamScorePrediction(0);
   };
 
   const onChangeFirstTeamScorePrediction = (action) => {
@@ -66,24 +69,46 @@ export default function PredictionDialog() {
       };
       return PredictionAPI.create(dataToSend).then(() => {
         enqueueSnackbar('Dự đoán thành công!', {
-          variant: 'success'
+          variant: 'success',
         });
         onClose();
         initialize();
+        mutate((key) => typeof key === 'string' && key.startsWith('/predictions'), undefined, {
+          revalidate: true,
+        });
       });
     }
   };
 
   React.useEffect(() => {
     $on('@dialog.prediction.action.open', (data) => {
-      setMatch(data?.match);
+      setMatch(_.get(data, 'match'));
       onOpen();
     });
-  }, [$on]);
+  }, [$on, mutate]);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle id="alert-dialog-title">Dự đoán tỉ số</DialogTitle>
+      <DialogTitle id="alert-dialog-title">
+      Dự đoán tỉ số
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{
+            position: 'absolute',
+            right: {
+              lg: 16,
+              xs: 8
+            },
+            top: {
+              lg: 16,
+              xs: 8
+            },
+          }}
+        >
+          <Iconify icon="material-symbols:close" />
+        </IconButton>
+      </DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
           Lệ phí tham gia là 1 chip

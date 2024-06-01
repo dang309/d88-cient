@@ -111,8 +111,24 @@ export default function Header({ onOpenNav }) {
   }, [location.pathname]);
 
   return (
-    <>
-      <Container>
+    <AppBar
+        position={openAlert ? 'static' : 'fixed'}
+        sx={{
+          boxShadow: 'none',
+          height: HEADER.H_MOBILE,
+          zIndex: theme.zIndex.appBar + 1,
+          ...bgBlur({
+            color: theme.palette.background.default,
+          }),
+          transition: theme.transitions.create(['height'], {
+            duration: theme.transitions.duration.shorter,
+          }),
+          ...(!downLg && {
+            height: HEADER.H_DESKTOP,
+          }),
+        }}
+      >
+        <Container>
         <Collapse in={openAlert}>
           <Alert
             severity="info"
@@ -133,23 +149,6 @@ export default function Header({ onOpenNav }) {
           </Alert>
         </Collapse>
       </Container>
-      <AppBar
-        position={openAlert ? 'static' : 'fixed'}
-        sx={{
-          boxShadow: 'none',
-          height: HEADER.H_MOBILE,
-          zIndex: theme.zIndex.appBar + 1,
-          ...bgBlur({
-            color: theme.palette.background.default,
-          }),
-          transition: theme.transitions.create(['height'], {
-            duration: theme.transitions.duration.shorter,
-          }),
-          ...(!downLg && {
-            height: HEADER.H_DESKTOP,
-          }),
-        }}
-      >
         <Toolbar
           sx={{
             height: 1,
@@ -159,7 +158,6 @@ export default function Header({ onOpenNav }) {
           {renderContent}
         </Toolbar>
       </AppBar>
-    </>
   );
 }
 

@@ -24,6 +24,12 @@ const navConfig = [
     path: '/transaction-history',
     icon: icon('line-md:arrows-vertical'),
     type: 'authenticated'
+  },
+  {
+    title: 'Mini Game',
+    path: '/mini-game',
+    icon: icon('line-md:emoji-smile-twotone'),
+    type: 'authenticated'
   }
 ];
 
