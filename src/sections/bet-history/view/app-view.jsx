@@ -25,7 +25,6 @@ const HEAD_LABELS = [
   { id: 'betType', label: 'Kèo' },
   { id: 'betValue', label: 'Đã đặt' },
   { id: 'betAmount', label: 'Chip đã đặt' },
-  { id: 'result', label: 'Kết quả' },
   { id: 'profit', label: 'Thắng' },
   { id: 'loss', label: 'Thua' },
 ];

@@ -13,7 +13,7 @@ import Iconify from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 export default function MyTableRow({ row }) {
-  const { match, betValue, betAmount, betType } = row;
+  const { match, value, amount, type } = row;
   return (
     <TableRow hover tabIndex={-1}>
       <TableCell>
@@ -87,21 +87,18 @@ export default function MyTableRow({ row }) {
       </TableCell>
 
       <TableCell>
-        <Label color={betType === 'handicap' ? 'primary' : 'secondary'}>
-          {betType === 'handicap' ? 'Chấp' : 'Tài/Xỉu'}
+        <Label color={type === 'handicap' ? 'primary' : 'secondary'}>
+          {type === 'handicap' ? 'Chấp' : 'Tài/Xỉu'}
         </Label>
       </TableCell>
 
       <TableCell>
         <Typography variant="subtitle2">
-          {betType === 'handicap' ? betValue : betValue === 'over' ? 'Tài' : 'Xỉu'}
+          {type === 'handicap' ? value : value === 'over' ? 'Tài' : 'Xỉu'}
         </Typography>
       </TableCell>
 
-      <TableCell>{betAmount}</TableCell>
-      <TableCell>
-        <Label>-</Label>
-      </TableCell>
+      <TableCell>{amount}</TableCell>
       <TableCell>-</TableCell>
       <TableCell>-</TableCell>
     </TableRow>
