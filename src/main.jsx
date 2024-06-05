@@ -15,7 +15,7 @@ root.render(
   <HelmetProvider>
     <BrowserRouter>
       <SnackbarProvider
-        autoHideDuration={1000}
+        autoHideDuration={2500}
         anchorOrigin={{
           vertical: 'top',
           horizontal: 'center',

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import numeral from 'numeral';
 
 // ----------------------------------------------------------------------
@@ -19,7 +20,7 @@ export function fPercent(number) {
 }
 
 export function fShortenNumber(number) {
-  const format = number ? numeral(number).format('0.00a') : '';
+  const format = number ? numeral(number).format('0.00a') : '0';
 
   return result(format, '.00');
 }
@@ -28,6 +29,11 @@ export function fData(number) {
   const format = number ? numeral(number).format('0.0 b') : '';
 
   return result(format, '.0');
+}
+
+export function fRound(number) {
+  if(_.isNil(number) || _.isNaN(number)) return 0
+  return Math.round((number + Number.EPSILON) * 100) / 100;
 }
 
 function result(format, key = '.00') {

@@ -1,6 +1,8 @@
+import _ from 'lodash';
 import * as React from 'react';
 import { useSnackbar } from 'notistack';
 
+import { LoadingButton } from '@mui/lab';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -31,6 +33,8 @@ import useAuth from 'src/hooks/auth';
 import useEventBus from 'src/hooks/event-bus';
 import { useResponsive } from 'src/hooks/use-responsive';
 
+import { fRound } from 'src/utils/format-number';
+
 import { BetAPI } from 'src/api';
 
 import Label from 'src/components/label';
@@ -48,11 +52,13 @@ export default function BetDialog(props) {
   const { user, initialize } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
   const { $emit, $on } = useEventBus();
-
   const downSm = useResponsive('down', 'sm');
+
+  const confettiRef = React.useRef(null);
 
   const [betValue, setBetValue] = React.useState();
   const [betAmount, setBetAmount] = React.useState(1);
+  const [isLoading, setIsLoading] = React.useState(false);
   const [err, setErr] = React.useState('');
   const [open, setOpen] = React.useState(false);
   const [tab, setTab] = React.useState(0);
@@ -71,13 +77,13 @@ export default function BetDialog(props) {
   const validateBetAmount = (amount, balance = 0) => {
     let _err = '';
     if (amount % 1 !== 0) {
-      _err = 'Số chip không được lẻ';
+      _err = 'Tiền cược không được lẻ';
     } else if (amount < MIN_BET_AMOUNT) {
-      _err = 'Tối thiểu 1 chip';
+      _err = 'Tiền cược tối thiểu 1 chip';
     } else if (amount > MAX_BET_AMOUNT) {
-      _err = 'Tối đa là 70 chip';
+      _err = 'Tiền cược tối đa là 70 chip';
     } else if (amount > balance) {
-      _err = 'Không đủ chip';
+      _err = 'Số dư không đủ';
     }
     return _err;
   };
@@ -88,7 +94,7 @@ export default function BetDialog(props) {
     setErr(error);
   };
 
-  const onChangeTab = (_, newTab) => {
+  const onChangeTab = (_e, newTab) => {
     if (newTab === TAB.HANDICAP) setBetValue(match?.firstTeamName);
     else if (newTab === TAB.OVER_UNDER) setBetValue('over');
     setTab(newTab);
@@ -99,6 +105,7 @@ export default function BetDialog(props) {
     if (!user) return $emit('@dialog.auth.action.open');
 
     setErr('');
+    setIsLoading(true);
     const error = validateBetAmount(betAmount, user?.balance);
     if (error) return setErr(error);
 
@@ -118,8 +125,11 @@ export default function BetDialog(props) {
       })
       .then(() => {
         initialize().then(() => {
-          onClose();
+          setErr('');
         });
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -131,16 +141,53 @@ export default function BetDialog(props) {
 
   const onClose = () => {
     setOpen(false);
+    setErr('');
+    setBetAmount(1);
   };
 
   React.useEffect(() => {
     $on('@dialog.bet.action.open', (data) => {
-      console.log({ data });
       setMatch(data?.match);
       setBetValue(data?.match?.firstTeamName);
       onOpen();
     });
   }, [$on]);
+
+  React.useEffect(() => {
+    const script = document.createElement('script');
+    script.src = '/js/confetti.min.js';
+    script.async = true;
+    script.onload = () => {
+      if (window.Confetti && !err) {
+        confettiRef.current = new window.Confetti('bet-btn');
+
+        confettiRef.current.setCount(75);
+        confettiRef.current.setSize(1);
+        confettiRef.current.setPower(25);
+        confettiRef.current.setFade(false);
+        confettiRef.current.destroyTarget(false);
+      }
+    };
+
+    document.body.appendChild(script);
+  }, [match, err]);
+
+  if (_.isNil(match)) return null;
+
+  const {
+    firstTeamName,
+    firstTeamFlag,
+    secondTeamName,
+    secondTeamFlag,
+    topTeamName,
+    handicap,
+    overUnder,
+  } = match;
+
+  if (_.isNil(handicap) || _.isNil(overUnder)) return null;
+
+  const { threshold: handicapThreshold, firstTeamWinRate, secondTeamWinRate } = handicap;
+  const { threshold: overUnderThreshold, overWinRate, underWinRate } = overUnder;
 
   return (
     <Dialog
@@ -188,7 +235,7 @@ export default function BetDialog(props) {
                 dense
                 subheader={
                   <ListSubheader component="div" id="nested-list-subheader">
-                    <Label>{match?.handicap?.threshold.toFixed(1) || 0} trái</Label>
+                    <Label>{fRound(handicapThreshold)} trái</Label>
                   </ListSubheader>
                 }
               >
@@ -196,11 +243,11 @@ export default function BetDialog(props) {
                   <ToggleButtonGroup
                     color="secondary"
                     value={betValue}
-                    onChange={(_, newVal) => onChangeBetValue(newVal)}
+                    onChange={(_e, newVal) => onChangeBetValue(newVal)}
                     exclusive
                     fullWidth
                   >
-                    <ToggleButton value={match?.firstTeamName}>
+                    <ToggleButton value={firstTeamName}>
                       <Stack
                         direction="row"
                         alignItems="center"
@@ -212,41 +259,39 @@ export default function BetDialog(props) {
                           alignItems="center"
                           spacing={downSm ? 0 : 1}
                         >
-                          <Iconify
-                            icon={`flag:${match?.firstTeamFlag}`}
-                            sx={{ height: 32, width: 32 }}
-                          />
+                          <Iconify icon={`flag:${firstTeamFlag}`} sx={{ height: 32, width: 32 }} />
                           <Typography variant={downSm ? 'caption' : 'subtitle2'}>
-                            {match?.firstTeamName}
+                            {firstTeamName === topTeamName ? (
+                              <mark>{firstTeamName}</mark>
+                            ) : (
+                              firstTeamName
+                            )}
                           </Typography>
                         </Stack>
-                        <Typography variant="caption">
-                          {match?.handicap?.firstTeamWinRate.toFixed(1) || 0}
-                        </Typography>
+                        <Typography variant="caption">{fRound(firstTeamWinRate)}</Typography>
                       </Stack>
                     </ToggleButton>
-                    <ToggleButton value={match?.secondTeamName}>
+                    <ToggleButton value={secondTeamName}>
                       <Stack
                         direction="row"
                         alignItems="center"
                         justifyContent="space-between"
                         sx={{ width: '100%' }}
                       >
-                        <Typography variant="caption">
-                          {match?.handicap?.secondTeamWinRate.toFixed(1) || 0}
-                        </Typography>
+                        <Typography variant="caption">{fRound(secondTeamWinRate)}</Typography>
                         <Stack
                           direction={downSm ? 'column-reverse' : 'row'}
                           alignItems="center"
                           spacing={downSm ? 0 : 1}
                         >
                           <Typography variant={downSm ? 'caption' : 'subtitle2'}>
-                            {match?.secondTeamName}
+                            {secondTeamName === topTeamName ? (
+                              <mark>{secondTeamName}</mark>
+                            ) : (
+                              secondTeamName
+                            )}
                           </Typography>
-                          <Iconify
-                            icon={`flag:${match?.secondTeamFlag}`}
-                            sx={{ height: 32, width: 32 }}
-                          />
+                          <Iconify icon={`flag:${secondTeamFlag}`} sx={{ height: 32, width: 32 }} />
                         </Stack>
                       </Stack>
                     </ToggleButton>
@@ -259,7 +304,7 @@ export default function BetDialog(props) {
               <List
                 subheader={
                   <ListSubheader component="div" id="nested-list-subheader">
-                    <Label>{match?.overUnder?.threshold.toFixed(1) || 0} trái</Label>
+                    <Label>{fRound(overUnderThreshold)} trái</Label>
                   </ListSubheader>
                 }
               >
@@ -267,7 +312,7 @@ export default function BetDialog(props) {
                   <ToggleButtonGroup
                     color="secondary"
                     value={betValue}
-                    onChange={(_, newVal) => onChangeBetValue(newVal)}
+                    onChange={(_e, newVal) => onChangeBetValue(newVal)}
                     exclusive
                     aria-label="text alignment"
                     fullWidth
@@ -280,9 +325,7 @@ export default function BetDialog(props) {
                         sx={{ width: '100%' }}
                       >
                         <Typography variant="subtitle1">Tài</Typography>
-                        <Typography variant="caption">
-                          {match?.overUnder?.overWinRate.toFixed(1) || 0}
-                        </Typography>
+                        <Typography variant="caption">{fRound(overWinRate)}</Typography>
                       </Stack>
                     </ToggleButton>
                     <ToggleButton value="under">
@@ -292,9 +335,7 @@ export default function BetDialog(props) {
                         alignItems="center"
                         sx={{ width: '100%' }}
                       >
-                        <Typography variant="caption">
-                          {match?.overUnder?.underWinRate.toFixed(1) || 0}
-                        </Typography>
+                        <Typography variant="caption">{fRound(underWinRate)}</Typography>
                         <Typography variant="subtitle1">Xỉu</Typography>
                       </Stack>
                     </ToggleButton>
@@ -313,7 +354,7 @@ export default function BetDialog(props) {
                   </Typography>
 
                   <Label endIcon={<Iconify icon="material-symbols:poker-chip" />}>
-                    {user?.balance || 0}
+                    {fRound(user?.balance)}
                   </Label>
                 </Stack>
 
@@ -342,7 +383,7 @@ export default function BetDialog(props) {
                 value={betAmount}
                 min={MIN_BET_AMOUNT}
                 max={MAX_BET_AMOUNT}
-                valueLabelDisplay='auto'
+                valueLabelDisplay="auto"
                 marks={[
                   {
                     value: MIN_BET_AMOUNT,
@@ -384,7 +425,7 @@ export default function BetDialog(props) {
                     ),
                   },
                 ]}
-                onChange={(_, newVal) => onChangeBetAmount(newVal)}
+                onChange={(_e, newVal) => onChangeBetAmount(newVal)}
               />
             </Grid2>
 
@@ -410,6 +451,7 @@ export default function BetDialog(props) {
                   inputProps={{
                     min: MIN_BET_AMOUNT,
                     max: MAX_BET_AMOUNT,
+                    step: 1,
                     type: 'number',
                   }}
                 />
@@ -420,9 +462,16 @@ export default function BetDialog(props) {
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button type="submit" fullWidth variant="contained" color="info">
+        <LoadingButton
+          id="bet-btn"
+          type="submit"
+          fullWidth
+          variant="contained"
+          color="info"
+          loading={isLoading}
+        >
           Đặt cược
-        </Button>
+        </LoadingButton>
       </DialogActions>
     </Dialog>
   );

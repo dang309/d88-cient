@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
-import { useState, useEffect } from 'react';
+import { useLocalStorage } from 'react-use';
+import { useEffect, useCallback } from 'react';
 import { useLocation, Link as RouterLink } from 'react-router-dom';
 
 import Stack from '@mui/material/Stack';
@@ -7,7 +8,7 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import { useTheme } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
-import { Link, Alert, Button, Collapse, Container, Typography } from '@mui/material';
+import { Link, Alert, Button, Container, Typography } from '@mui/material';
 
 import useAuth from 'src/hooks/auth';
 import useEventBus from 'src/hooks/event-bus';
@@ -30,17 +31,19 @@ export default function Header({ onOpenNav }) {
   const { user } = useAuth();
   const { $emit } = useEventBus();
   const location = useLocation();
+  const [shouldShowMiniGameAlert, setShouldShowMiniGameAlert] = useLocalStorage(
+    'shouldShowMiniGameAlert',
+    true
+  );
 
   const downLg = useResponsive('down', 'lg');
-
-  const [openAlert, setOpenAlert] = useState(true);
 
   const onOpenRechargeDialog = () => $emit('@dialog.recharge.action.open');
   const onOpenAuthDialog = () => $emit('@dialog.auth.action.open');
 
-  const onCloseAlert = () => {
-    setOpenAlert(false);
-  };
+  const onCloseAlert = useCallback(() => {
+    setShouldShowMiniGameAlert(false);
+  }, [setShouldShowMiniGameAlert]);
 
   const renderContent = (
     <Container>
@@ -108,28 +111,32 @@ export default function Header({ onOpenNav }) {
     if (location.pathname.includes('mini-game')) {
       onCloseAlert();
     }
-  }, [location.pathname]);
+
+    if (shouldShowMiniGameAlert === false) {
+      onCloseAlert();
+    }
+  }, [location, shouldShowMiniGameAlert, onCloseAlert]);
 
   return (
     <AppBar
-        position={openAlert ? 'static' : 'fixed'}
-        sx={{
-          boxShadow: 'none',
-          height: HEADER.H_MOBILE,
-          zIndex: theme.zIndex.appBar + 1,
-          ...bgBlur({
-            color: theme.palette.background.default,
-          }),
-          transition: theme.transitions.create(['height'], {
-            duration: theme.transitions.duration.shorter,
-          }),
-          ...(!downLg && {
-            height: HEADER.H_DESKTOP,
-          }),
-        }}
-      >
-        <Container>
-        <Collapse in={openAlert}>
+      position={shouldShowMiniGameAlert ? 'static' : 'fixed'}
+      sx={{
+        boxShadow: 'none',
+        height: HEADER.H_MOBILE,
+        zIndex: theme.zIndex.appBar + 1,
+        ...bgBlur({
+          color: theme.palette.background.default,
+        }),
+        transition: theme.transitions.create(['height'], {
+          duration: theme.transitions.duration.shorter,
+        }),
+        ...(!downLg && {
+          height: HEADER.H_DESKTOP,
+        }),
+      }}
+    >
+      <Container>
+        {shouldShowMiniGameAlert && (
           <Alert
             severity="info"
             variant="outlined"
@@ -147,17 +154,17 @@ export default function Header({ onOpenNav }) {
               </Link>
             </Typography>
           </Alert>
-        </Collapse>
+        )}
       </Container>
-        <Toolbar
-          sx={{
-            height: 1,
-            px: { lg: 5 },
-          }}
-        >
-          {renderContent}
-        </Toolbar>
-      </AppBar>
+      <Toolbar
+        sx={{
+          height: 1,
+          px: { lg: 5 },
+        }}
+      >
+        {renderContent}
+      </Toolbar>
+    </AppBar>
   );
 }
 

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 
@@ -13,7 +14,7 @@ import { MatchVersus } from 'src/components/match-versus';
 // ----------------------------------------------------------------------
 
 export default function MyTableRow({ row }) {
-  const { match, value, amount, type } = row;
+  const { match, value, amount, type, profit, loss, winOrLoseType } = row;
   return (
     <TableRow hover tabIndex={-1}>
       <TableCell>
@@ -44,8 +45,25 @@ export default function MyTableRow({ row }) {
       </TableCell>
 
       <TableCell>{amount}</TableCell>
-      <TableCell>-</TableCell>
-      <TableCell>-</TableCell>
+      <TableCell>
+        {(_.isNil(profit) || _.isNil(loss) || _.isNil(winOrLoseType)) && '-'}
+
+        {winOrLoseType && profit === 0 && loss === 0 && (
+          <Label endIcon={<Iconify icon="material-symbols:poker-chip" />}>0</Label>
+        )}
+
+        {winOrLoseType && profit !== 0 && (
+          <Label color="success" endIcon={<Iconify icon="material-symbols:poker-chip" />}>
+            + {profit}
+          </Label>
+        )}
+
+        {winOrLoseType && loss !== 0 && (
+          <Label color="error" endIcon={<Iconify icon="material-symbols:poker-chip" />}>
+            - {loss}
+          </Label>
+        )}
+      </TableCell>
     </TableRow>
   );
 }

@@ -25,16 +25,19 @@ const HEAD_LABELS = [
   { id: 'betType', label: 'Kèo' },
   { id: 'betValue', label: 'Đã đặt' },
   { id: 'betAmount', label: 'Chip đã đặt' },
-  { id: 'profit', label: 'Thắng' },
-  { id: 'loss', label: 'Thua' },
-];
+  { id: 'profitOrLoss', label: 'Thắng/ Thua' },
+  ];
 
 export default function BetHistoryPage() {
   const { user } = useAuth();
   const { items: bets } = useData(
     user
       ? `/bets?${qs.stringify({
-          populate: ['match', 'user'],
+          populate: {
+            match: {
+              populate: ['result']
+            }
+          },
           sort: ['createdAt:desc'],
           filters: {
             user: {

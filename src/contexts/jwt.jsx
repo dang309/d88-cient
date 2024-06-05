@@ -1,4 +1,5 @@
 // utils
+import qs from 'qs'
 import Cookies from 'js-cookie';
 import PropTypes from 'prop-types';
 import { useMemo, useEffect, useReducer, createContext } from 'react';
@@ -155,7 +156,11 @@ const AuthProvider = ({ children }) => {
       if (jwt && isValidToken(jwt)) {
         setSession(jwt);
 
-        const res = await UserAPI.me();
+        const query = {
+          fields: ['id', 'username', 'email', 'avatarUrl', 'balance']
+        }
+
+        const res = await UserAPI.me(qs.stringify(query));
         const user = res.data;
         user.token = jwt;
 

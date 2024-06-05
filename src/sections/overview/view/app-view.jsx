@@ -1,5 +1,7 @@
+import qs from 'qs';
+
+import { Grid } from '@mui/material';
 import Container from '@mui/material/Container';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 
 import useData from 'src/hooks/data';
 
@@ -10,10 +12,14 @@ import MatchBox from '../components/match-box';
 // ----------------------------------------------------------------------
 
 export default function AppView() {
-  const { items: matches, isLoading } = useData('/matches');
+  const { items: matches, isLoading } = useData(
+    `/matches?${qs.stringify({
+      populate: ['result', 'handicap', 'overUnder'],
+    })}`
+  );
   return (
     <Container>
-      <Grid2
+      <Grid
         container
         justifyContent={{
           lg: 'start',
@@ -21,17 +27,29 @@ export default function AppView() {
           sm: 'center',
           xs: 'center',
         }}
+        alignItems="stretch"
         spacing={1}
       >
         {matches &&
-          matches.map((match) => (
-            <Grid2 key={match.id} item lg={4} md={6} sm={10} xs={12}>
-              <MatchBox match={match} />
-            </Grid2>
-          ))}
+          matches.map((match, index) => {
+            const isComingMatch = index === 0;
+            return (
+              <Grid
+                key={match.id}
+                item
+                lg={isComingMatch ? 8 : 4}
+                md={isComingMatch ? 12 : 6}
+                sm={isComingMatch ? 12 : 10}
+                xs={isComingMatch ? 12 : 11}
+                sx={{display: 'flex'}}
+              >
+                <MatchBox match={match} isComingMatch={isComingMatch} />
+              </Grid>
+            );
+          })}
         {isLoading && <Loader />}
         {!isLoading && matches && matches.length === 0 && <Empty />}
-      </Grid2>
+      </Grid>
     </Container>
   );
 }

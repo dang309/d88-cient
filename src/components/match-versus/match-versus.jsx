@@ -7,7 +7,15 @@ import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import Label from '../label';
 import Iconify from '../iconify';
 
-const MatchVersus = ({ match = {}, showResult, showVersus, showType, showDatetime }) => {
+const MatchVersus = ({
+  match = {},
+  showResult,
+  showVersus,
+  showType,
+  showDatetime,
+  isComingMatch,
+  sx,
+}) => {
   const {
     firstTeamFlag,
     firstTeamName,
@@ -20,6 +28,7 @@ const MatchVersus = ({ match = {}, showResult, showVersus, showType, showDatetim
 
   const isFirstTeamTop = topTeamName === firstTeamName;
   const isSecondTeamTop = topTeamName === secondTeamName;
+  const iconSize = isComingMatch ? 64 : 32;
 
   return (
     <Grid2
@@ -32,11 +41,12 @@ const MatchVersus = ({ match = {}, showResult, showVersus, showType, showDatetim
         sm: 4,
         xs: 4,
       }}
+      {...sx}
     >
       <Grid2 item lg={2} md={3} sm={3} xs={3}>
         <Stack alignItems="center" justifyContent="center">
-          <Iconify icon={`flag:${firstTeamFlag}`} sx={{ height: 32, width: 32 }} />
-          <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
+          <Iconify icon={`flag:${firstTeamFlag}`} sx={{ height: iconSize, width: iconSize }} />
+          <Typography noWrap variant="caption" sx={{ textAlign: 'center' }}>
             {isFirstTeamTop ? (
               <mark>
                 <strong>{firstTeamName}</strong>
@@ -67,13 +77,15 @@ const MatchVersus = ({ match = {}, showResult, showVersus, showType, showDatetim
           )}
 
           {showDatetime && (
-            <Stack direction="row" alignItems="center" gap={0.5}>
-              <Label color="warning" startIcon={<Iconify icon="mingcute:calendar-2-line" />}>
-                {moment(datetime).format('DD/MM')}
+            <Stack alignItems="center" gap={0.5}>
+              <Label variant="outlined" startIcon={<Iconify icon="mingcute:calendar-2-line" />}>
+                {moment(datetime).format('DD/MM | HH:mm')}
               </Label>
-              <Label color="success" startIcon={<Iconify icon="mingcute:time-line" />}>
-                {moment(datetime).format('HH:mm')}
-              </Label>
+              {isComingMatch && (
+                <Label color="warning" startIcon={<Iconify icon="svg-spinners:3-dots-scale" />}>
+                  Sắp diễn ra
+                </Label>
+              )}
             </Stack>
           )}
         </Stack>
@@ -81,8 +93,8 @@ const MatchVersus = ({ match = {}, showResult, showVersus, showType, showDatetim
 
       <Grid2 item lg={2} md={3} sm={3} xs={3}>
         <Stack alignItems="center" justifyContent="center">
-          <Iconify icon={`flag:${secondTeamFlag}`} sx={{ height: 32, width: 32 }} />
-          <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
+          <Iconify icon={`flag:${secondTeamFlag}`} sx={{ height: iconSize, width: iconSize }} />
+          <Typography noWrap variant="caption" sx={{ textAlign: 'center' }}>
             {isSecondTeamTop ? (
               <mark>
                 <strong>{secondTeamName}</strong>
@@ -103,6 +115,8 @@ MatchVersus.propTypes = {
   showVersus: PropTypes.bool,
   showType: PropTypes.bool,
   showDatetime: PropTypes.bool,
+  isComingMatch: PropTypes.bool,
+  sx: PropTypes.object,
 };
 
 export default MatchVersus;

@@ -62,7 +62,7 @@ export default function AuthenticationDialog() {
         onClose();
       });
     } else if (tab === TAB.REGISTER) {
-      data.avatarUrl = `https://api.dicebear.com/8.x/adventurer/svg?seed=${data.username.split(' ').join('_')}`
+      data.avatarUrl = `https://api.dicebear.com/8.x/bottts/svg?seed=${data.email.toLocaleLowerCase()}`;
       register(data).then(() => {
         enqueueSnackbar('Đăng Ký thành công!', {
           variant: 'success',

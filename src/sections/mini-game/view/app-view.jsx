@@ -172,7 +172,7 @@ export default function AppView() {
             <MatchVersus match={match} showVersus />
           </CardContent>
           <CardActions>
-            <Button fullWidth variant="contained">
+            <Button fullWidth variant="contained" onClick={onOpenPredictionDialog}>
               Dự đoán (1 <Iconify icon="material-symbols:poker-chip" />)
             </Button>
           </CardActions>

@@ -12,6 +12,7 @@ import BetDialog from 'src/components/@dialogs/bet';
 import RechargeDialog from 'src/components/@dialogs/recharge';
 import PredictionDialog from 'src/components/@dialogs/prediction';
 import AuthenticationDialog from 'src/components/@dialogs/authentication';
+import CongratulationDialog from 'src/components/@dialogs/congratulation';
 import PredictionRuleDialog from 'src/components/@dialogs/prediction-rule';
 
 import Nav from './nav';
@@ -24,26 +25,29 @@ export default function DashboardLayout({ children }) {
   const { user } = useAuth();
   const { $emit } = useEventBus();
   const { items: predictionResult } = useData(
-    `/prediction-results?${qs.stringify({
-      fields: ['prize'],
-      populate: {
-        winner: {
-          fields: ['id'],
+    user &&
+      `/prediction-results?${qs.stringify({
+        fields: ['prize', 'isRead'],
+        populate: {
+          winner: {
+            fields: ['id'],
+            id: user.id,
+          },
+          match: {
+            fields: ['id', 'firstTeamName', 'firstTeamFlag', 'secondTeamName', 'secondTeamFlag'],
+          },
         },
-        match: {
-          fields: ['id', 'firstTeamName', 'firstTeamFlag', 'secondTeamName', 'secondTeamFlag'],
-        },
-      },
-    })}`
+      })}`
   );
 
   const [openNav, setOpenNav] = useState(false);
 
   const onCheckPredictionWinner = useCallback(() => {
-    if (predictionResult) {
+    if (user && predictionResult) {
+      if (predictionResult[0] && predictionResult[0].isRead) return;
       const idx = predictionResult.findIndex((item) => user && item.winner?.id === user.id);
       if (idx > -1)
-        return $emit('@dialog.congratulation.action.open', { match: predictionResult.match });
+        return $emit('@dialog.congratulation.action.open', { result: predictionResult[idx] });
     }
   }, [predictionResult, user, $emit]);
 
@@ -71,7 +75,7 @@ export default function DashboardLayout({ children }) {
         <BetDialog />
         <PredictionDialog />
         <PredictionRuleDialog />
-        {/* <CongratulationDialog /> */}
+        <CongratulationDialog />
       </Box>
     </>
   );

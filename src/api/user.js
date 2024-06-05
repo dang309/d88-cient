@@ -7,8 +7,8 @@ class UserAPI {
     return request.get(`${UserAPI.endPoint}/${id}`);
   }
 
-  static async me() {
-    return request.get(`${UserAPI.endPoint}/me`);
+  static async me(query) {
+    return request.get(`${UserAPI.endPoint}/me?${query}`);
   }
 
   static async create(body) {
