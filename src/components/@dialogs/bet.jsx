@@ -71,7 +71,9 @@ export default function BetDialog(props) {
   };
 
   const onChangeBetValue = (newVal) => {
-    setBetValue(newVal);
+    if(!_.isNil(newVal)) {
+      setBetValue(newVal);
+    }
   };
 
   const validateBetAmount = (amount, balance = 0) => {
