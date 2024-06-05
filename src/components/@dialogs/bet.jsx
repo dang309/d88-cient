@@ -160,7 +160,7 @@ export default function BetDialog(props) {
     script.src = '/js/confetti.min.js';
     script.async = true;
     script.onload = () => {
-      if (window.Confetti && !err) {
+      if (window.Confetti && !err && user) {
         confettiRef.current = new window.Confetti('bet-btn');
 
         confettiRef.current.setCount(75);
@@ -172,7 +172,7 @@ export default function BetDialog(props) {
     };
 
     document.body.appendChild(script);
-  }, [match, err]);
+  }, [match, err, user]);
 
   if (_.isNil(match)) return null;
 
