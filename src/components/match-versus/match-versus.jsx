@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 
@@ -64,9 +65,9 @@ const MatchVersus = ({
 
           {showResult && (
             <Stack direction="row" spacing={1}>
-              <Label>{result?.firstTeamScore || '-'}</Label>
+              <Label>{_.isNil(result?.firstTeamScore) ? '-' : result?.firstTeamScore}</Label>
               <Typography>:</Typography>
-              <Label>{result?.secondTeamScore || '-'}</Label>
+              <Label>{_.isNil(result?.secondTeamScore) ? '-' : result?.secondTeamScore}</Label>
             </Stack>
           )}
 

@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import * as React from 'react';
+import { useSWRConfig } from 'swr';
 import { useWindowSize } from 'react-use';
 import ReactConfetti from 'react-confetti';
 
@@ -12,6 +13,7 @@ import useEventBus from 'src/hooks/event-bus';
 
 import { PredictionResultAPI } from 'src/api';
 
+import Label from '../label';
 import Iconify from '../iconify';
 import { MatchVersus } from '../match-versus';
 
@@ -26,6 +28,7 @@ const CustomBackdrop = () => {
 
 export default function CongratulationDialog() {
   const { $on } = useEventBus();
+  const { mutate } = useSWRConfig();
 
   const [open, setOpen] = React.useState(false);
   const [result, setResult] = React.useState();
@@ -36,9 +39,12 @@ export default function CongratulationDialog() {
 
   const onClose = () => {
     if (result.id) {
-      PredictionResultAPI.update(result.id, { isRead: true });
+      PredictionResultAPI.update(result.id, { isRead: true }).then(() => {
+        mutate((key) => typeof key === 'string' && key.startsWith('/prediction-results'));
+      }).finally(() => {
+        setOpen(false);
+      });
     }
-    setOpen(false);
   };
 
   React.useEffect(() => {
@@ -90,15 +96,10 @@ export default function CongratulationDialog() {
           />
         </Stack>
 
-        <Stack direction="row" alignItems="center" justifyContent="center" spacing={1}>
-          <Typography variant="subtitle2">Số chip nhận được: </Typography>
-          <Stack direction="row" alignItems="center" justifyContent="center">
-            <Typography variant="h5" sx={{}}>
-              {result?.prize || 0}
-            </Typography>
-
-            <Iconify icon="material-symbols:poker-chip" sx={{ width: 24, height: 24 }} />
-          </Stack>
+        <Stack alignItems="center">
+          <Label color="warning" endIcon={<Iconify icon="material-symbols:poker-chip" />}>
+            + {result?.prize || 0}
+          </Label>
         </Stack>
       </DialogContent>
     </Dialog>

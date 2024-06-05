@@ -124,9 +124,10 @@ export default function PredictionDialog() {
             }}
             alignItems="center"
             spacing={2}
+            sx={{py: 2}}
           >
-            <Grid2 item lg={4} xs>
-              <Stack direction="row" justifyContent='flex-end' spacing={2}>
+            <Grid2 item lg={4} xs sx={{p: 0}}>
+              <Stack direction="row" justifyContent="flex-end" spacing={1}>
                 <Stack alignItems="center" justifyContent="center">
                   <Iconify icon={`flag:${match.firstTeamFlag}`} sx={{ height: 32, width: 32 }} />
                   <Typography
@@ -144,7 +145,10 @@ export default function PredictionDialog() {
                 </Stack>
                 <Stack>
                   <Stack alignItems="center">
-                    <IconButton key="one" onClick={() => onChangeFirstTeamScorePrediction('plus')}>
+                    <IconButton
+                      size="small"
+                      onClick={() => onChangeFirstTeamScorePrediction('plus')}
+                    >
                       <Iconify icon="line-md:arrow-small-up" sx={{ width: 20, height: 20 }} />
                     </IconButton>
                   </Stack>
@@ -152,7 +156,10 @@ export default function PredictionDialog() {
                     {firstTeamScorePrediction}
                   </Button>
                   <Stack alignItems="center">
-                    <IconButton key="one" onClick={() => onChangeFirstTeamScorePrediction('minus')}>
+                    <IconButton
+                      size="small"
+                      onClick={() => onChangeFirstTeamScorePrediction('minus')}
+                    >
                       <Iconify icon="line-md:arrow-small-down" />
                     </IconButton>
                   </Stack>
@@ -160,20 +167,20 @@ export default function PredictionDialog() {
               </Stack>
             </Grid2>
 
-            <Grid2 item lg={1} xs={1}>
-              <Stack alignItems="center">
+            <Grid2 item lg={1} xs={1} sx={{ p: 0 }}>
+              <Stack alignItems='center'>
                 <Typography>:</Typography>
               </Stack>
             </Grid2>
 
-            <Grid2 item lg={4} xs>
-              <Stack direction="row" justifyContent='flex-start' spacing={1}>
+            <Grid2 item lg={4} xs sx={{p: 0}}>
+              <Stack direction="row" justifyContent="flex-start" spacing={1}>
                 <Stack>
                   <Stack
                     alignItems="center"
                     onClick={() => onChangeSecondTeamScorePrediction('plus')}
                   >
-                    <IconButton key="one">
+                    <IconButton size="small">
                       <Iconify icon="line-md:arrow-small-up" sx={{ width: 20, height: 20 }} />
                     </IconButton>
                   </Stack>
@@ -182,14 +189,14 @@ export default function PredictionDialog() {
                   </Button>
                   <Stack alignItems="center">
                     <IconButton
-                      key="one"
+                      size="small"
                       onClick={() => onChangeSecondTeamScorePrediction('minus')}
                     >
                       <Iconify icon="line-md:arrow-small-down" />
                     </IconButton>
                   </Stack>
                 </Stack>
-                <Stack alignItems="center" justifyContent="center" gap={0.5}>
+                <Stack alignItems="center" justifyContent="center">
                   <Iconify icon={`flag:${match.secondTeamFlag}`} sx={{ height: 32, width: 32 }} />
                   <Typography
                     variant={downSm ? 'caption' : 'subtitle2'}

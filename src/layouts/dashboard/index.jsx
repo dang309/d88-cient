@@ -31,10 +31,15 @@ export default function DashboardLayout({ children }) {
         populate: {
           winner: {
             fields: ['id'],
-            id: user.id,
+            filters: {
+              id: user.id,
+            },
           },
           match: {
             fields: ['id', 'firstTeamName', 'firstTeamFlag', 'secondTeamName', 'secondTeamFlag'],
+            populate: {
+              result: true,
+            },
           },
         },
       })}`
