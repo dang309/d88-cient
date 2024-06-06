@@ -129,7 +129,7 @@ export default function PredictionDialog() {
             <Grid2 item lg={4} xs sx={{p: 0}}>
               <Stack direction="row" justifyContent="flex-end" spacing={1}>
                 <Stack alignItems="center" justifyContent="center">
-                  <Iconify icon={`flag:${match.firstTeamFlag}`} sx={{ height: 32, width: 32 }} />
+                  <Iconify icon={`circle-flags:${match.firstTeamFlag}`} sx={{ height: 32, width: 32 }} />
                   <Typography
                     variant={downSm ? 'caption' : 'subtitle2'}
                     sx={{ textAlign: 'center' }}
@@ -197,7 +197,7 @@ export default function PredictionDialog() {
                   </Stack>
                 </Stack>
                 <Stack alignItems="center" justifyContent="center">
-                  <Iconify icon={`flag:${match.secondTeamFlag}`} sx={{ height: 32, width: 32 }} />
+                  <Iconify icon={`circle-flags:${match.secondTeamFlag}`} sx={{ height: 32, width: 32 }} />
                   <Typography
                     variant={downSm ? 'caption' : 'subtitle2'}
                     sx={{ textAlign: 'center' }}

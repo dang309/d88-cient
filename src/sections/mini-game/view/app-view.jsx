@@ -234,7 +234,7 @@ export default function AppView() {
                                 <Grid2 item lg="auto" md="auto" sm="auto" xs="auto">
                                   <Stack alignItems="center">
                                     <Iconify
-                                      icon={`flag:${prediction?.match?.firstTeamFlag}`}
+                                      icon={`circle-flags:${prediction?.match?.firstTeamFlag}`}
                                       sx={{ height: 24, width: 24 }}
                                     />
                                   </Stack>
@@ -251,7 +251,7 @@ export default function AppView() {
                                 <Grid2 item lg="auto" md="auto" sm="auto" xs="auto">
                                   <Stack alignItems="center">
                                     <Iconify
-                                      icon={`flag:${prediction?.match?.secondTeamFlag}`}
+                                      icon={`circle-flags:${prediction?.match?.secondTeamFlag}`}
                                       sx={{ height: 24, width: 24 }}
                                     />
                                   </Stack>

@@ -17,7 +17,7 @@ const request = axios.create({
 const onRequest = (config) => {
   const jwt = Cookies.get(JWT_COOKIE);
 
-  if (jwt) {
+  if (jwt && !config.url.includes('auth')) {
     config.headers.Authorization = `Bearer ${jwt}`;
   }
 

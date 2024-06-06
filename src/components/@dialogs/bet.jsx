@@ -261,7 +261,7 @@ export default function BetDialog(props) {
                           alignItems="center"
                           spacing={downSm ? 0 : 1}
                         >
-                          <Iconify icon={`flag:${firstTeamFlag}`} sx={{ height: 32, width: 32 }} />
+                          <Iconify icon={`circle-flags:${firstTeamFlag}`} sx={{ height: 32, width: 32 }} />
                           <Typography variant={downSm ? 'caption' : 'subtitle2'}>
                             {firstTeamName === topTeamName ? (
                               <mark>{firstTeamName}</mark>
@@ -293,7 +293,7 @@ export default function BetDialog(props) {
                               secondTeamName
                             )}
                           </Typography>
-                          <Iconify icon={`flag:${secondTeamFlag}`} sx={{ height: 32, width: 32 }} />
+                          <Iconify icon={`circle-flags:${secondTeamFlag}`} sx={{ height: 32, width: 32 }} />
                         </Stack>
                       </Stack>
                     </ToggleButton>
