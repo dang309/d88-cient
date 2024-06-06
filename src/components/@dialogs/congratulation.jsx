@@ -1,13 +1,11 @@
 import _ from 'lodash';
 import * as React from 'react';
 import { useSWRConfig } from 'swr';
-import { useWindowSize } from 'react-use';
-import ReactConfetti from 'react-confetti';
 
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
-import { Stack, Backdrop, Typography, IconButton } from '@mui/material';
+import { Stack, Typography, IconButton } from '@mui/material';
 
 import useEventBus from 'src/hooks/event-bus';
 
@@ -16,15 +14,6 @@ import { PredictionResultAPI } from 'src/api';
 import Label from '../label';
 import Iconify from '../iconify';
 import { MatchVersus } from '../match-versus';
-
-const CustomBackdrop = () => {
-  const { width, height } = useWindowSize();
-  return (
-    <Backdrop open>
-      <ReactConfetti width={width} height={height} />
-    </Backdrop>
-  );
-};
 
 export default function CongratulationDialog() {
   const { $on } = useEventBus();
@@ -39,11 +28,13 @@ export default function CongratulationDialog() {
 
   const onClose = () => {
     if (result.id) {
-      PredictionResultAPI.update(result.id, { isRead: true }).then(() => {
-        mutate((key) => typeof key === 'string' && key.startsWith('/prediction-results'));
-      }).finally(() => {
-        setOpen(false);
-      });
+      PredictionResultAPI.update(result.id, { isRead: true })
+        .then(() => {
+          mutate((key) => typeof key === 'string' && key.startsWith('/prediction-results'));
+        })
+        .finally(() => {
+          setOpen(false);
+        });
     }
   };
 
@@ -54,16 +45,45 @@ export default function CongratulationDialog() {
     });
   }, [$on]);
 
+  React.useEffect(() => {
+    if (!window.confetti || !open) return;
+    const duration = 5 * 60 * 1000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+
+    function randomInRange(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    const interval = setInterval(() => {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const count = 50 * (timeLeft / duration);
+
+      // since particles fall down, start a bit higher than random
+      window.confetti('tsparticles', {
+        ...defaults,
+        count,
+        position: { x: randomInRange(10, 30), y: randomInRange(0, 100) - 20 },
+      });
+      window.confetti('tsparticles', {
+        ...defaults,
+        count,
+        position: { x: randomInRange(70, 90), y: randomInRange(0, 100) - 20 },
+      });
+    }, 250);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [open]);
+
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="sm"
-      fullWidth
-      slots={{
-        backdrop: CustomBackdrop,
-      }}
-    >
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle id="alert-dialog-title">
         Xin chúc mừng!
         <IconButton

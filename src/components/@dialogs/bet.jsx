@@ -34,6 +34,7 @@ import useEventBus from 'src/hooks/event-bus';
 import { useResponsive } from 'src/hooks/use-responsive';
 
 import { fRound } from 'src/utils/format-number';
+import { randomInRange } from 'src/utils/common';
 
 import { BetAPI } from 'src/api';
 
@@ -71,9 +72,24 @@ export default function BetDialog(props) {
   };
 
   const onChangeBetValue = (newVal) => {
-    if(!_.isNil(newVal)) {
+    if (!_.isNil(newVal)) {
       setBetValue(newVal);
     }
+  };
+
+  const explodeConfetti = async () => {
+    if (_.isNil(window.confetti)) return;
+    const defaults = {
+      zIndex: 9999,
+    };
+
+    window.confetti({
+      ...defaults,
+      angle: randomInRange(55, 125),
+      spread: randomInRange(50, 70),
+      count: randomInRange(50, 100),
+      position: { y: randomInRange(70, 80) },
+    });
   };
 
   const validateBetAmount = (amount, balance = 0) => {
@@ -109,7 +125,11 @@ export default function BetDialog(props) {
     setErr('');
     setIsLoading(true);
     const error = validateBetAmount(betAmount, user?.balance);
-    if (error) return setErr(error);
+    if (error) {
+      setIsLoading(false);
+      setErr(error);
+      return;
+    }
 
     const newBet = {
       user: user.id,
@@ -120,6 +140,9 @@ export default function BetDialog(props) {
     };
 
     return BetAPI.create(newBet)
+      .then(() => {
+        explodeConfetti();
+      })
       .then(() => {
         enqueueSnackbar('Đặt cược thành công!', {
           variant: 'success',
@@ -156,23 +179,16 @@ export default function BetDialog(props) {
   }, [$on]);
 
   React.useEffect(() => {
-    const script = document.createElement('script');
-    script.src = '/js/confetti.min.js';
-    script.async = true;
-    script.onload = () => {
-      if (window.Confetti && !err && user) {
-        confettiRef.current = new window.Confetti('bet-btn');
+    if (window.confetti) {
+      confettiRef.current = window.confetti;
+    }
 
-        confettiRef.current.setCount(75);
-        confettiRef.current.setSize(1);
-        confettiRef.current.setPower(25);
-        confettiRef.current.setFade(false);
-        confettiRef.current.destroyTarget(false);
+    return () => {
+      if (confettiRef.current) {
+        confettiRef.current = null;
       }
     };
-
-    document.body.appendChild(script);
-  }, [match, err, user]);
+  }, []);
 
   if (_.isNil(match)) return null;
 
@@ -401,13 +417,13 @@ export default function BetDialog(props) {
                     ),
                   },
                   {
-                    value: 25,
+                    value: 50,
                     label: (
                       <Button
                         color="warning"
                         size="small"
                         startIcon={<Iconify icon="mdi:human-male" />}
-                        onClick={() => onChangeBetAmount(25)}
+                        onClick={() => onChangeBetAmount(50)}
                       >
                         Người
                       </Button>
@@ -464,14 +480,7 @@ export default function BetDialog(props) {
         </Stack>
       </DialogContent>
       <DialogActions>
-        <LoadingButton
-          id="bet-btn"
-          type="submit"
-          fullWidth
-          variant="contained"
-          color="info"
-          loading={isLoading}
-        >
+        <LoadingButton type="submit" fullWidth variant="contained" color="info" loading={isLoading}>
           Đặt cược
         </LoadingButton>
       </DialogActions>

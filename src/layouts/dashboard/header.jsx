@@ -141,7 +141,7 @@ export default function Header({ onOpenNav }) {
         height: HEADER.H_MOBILE,
         background: 'transparent !important',
         backgroundImage: 'none',
-        mt: 2,
+        mt: shouldShowMiniGameAlert ? 0 : 2,
         zIndex: theme.zIndex.appBar + 1,
         ...bgBlur({
           color: theme.palette.background.default,
@@ -158,7 +158,7 @@ export default function Header({ onOpenNav }) {
         {shouldShowMiniGameAlert && (
           <Alert
             severity="info"
-            variant="outlined"
+            variant="standard"
             action={
               <IconButton onClick={onCloseAlert}>
                 <Iconify icon="line-md:close" />

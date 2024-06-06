@@ -60,9 +60,50 @@ export default function PredictionDialog() {
       });
   };
 
+  const explodeConfetti = async () => {
+    if (_.isNil(window.confetti)) return;
+    const count = 200;
+      const defaults = {
+        origin: { y: 0.7 },
+      };
+
+    function fire(particleRatio, opts) {
+      window.confetti(
+        { ...defaults, ...opts, particleCount: Math.floor(count * particleRatio),}
+      );
+    }
+
+    fire(0.25, {
+      spread: 26,
+      startVelocity: 55,
+    });
+
+    fire(0.2, {
+      spread: 60,
+    });
+
+    fire(0.35, {
+      spread: 100,
+      decay: 0.91,
+      scalar: 0.8,
+    });
+
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 25,
+      decay: 0.92,
+      scalar: 1.2,
+    });
+
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 45,
+    });
+  };
+
   const onPredict = async () => {
-    if(_.isNil(user)) {
-      return $emit('@dialog.auth.action.open')
+    if (_.isNil(user)) {
+      return $emit('@dialog.auth.action.open');
     }
     if (match && user) {
       const dataToSend = {
@@ -72,6 +113,7 @@ export default function PredictionDialog() {
         secondTeamScore: secondTeamScorePrediction,
       };
       return PredictionAPI.create(dataToSend).then(() => {
+        explodeConfetti();
         enqueueSnackbar('Dự đoán thành công!', {
           variant: 'success',
         });
@@ -127,9 +169,9 @@ export default function PredictionDialog() {
             }}
             alignItems="center"
             spacing={2}
-            sx={{py: 2}}
+            sx={{ py: 2 }}
           >
-            <Grid2 item lg={4} xs sx={{p: 0}}>
+            <Grid2 item lg={4} xs sx={{ p: 0 }}>
               <Stack direction="row" justifyContent="flex-end" spacing={1}>
                 <Stack alignItems="center" justifyContent="center">
                   <Iconify icon={`circle-flags:${match.firstTeamFlag}`} height={32} width={32} />
@@ -171,12 +213,12 @@ export default function PredictionDialog() {
             </Grid2>
 
             <Grid2 item lg={1} xs={1} sx={{ p: 0 }}>
-              <Stack alignItems='center'>
+              <Stack alignItems="center">
                 <Typography>:</Typography>
               </Stack>
             </Grid2>
 
-            <Grid2 item lg={4} xs sx={{p: 0}}>
+            <Grid2 item lg={4} xs sx={{ p: 0 }}>
               <Stack direction="row" justifyContent="flex-start" spacing={1}>
                 <Stack>
                   <Stack
