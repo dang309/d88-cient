@@ -1,14 +1,16 @@
 import PropTypes from 'prop-types';
 import { useLocalStorage } from 'react-use';
-import { useEffect, useCallback } from 'react';
-import { useLocation, Link as RouterLink } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import { useTheme } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
-import { Link, Alert, Button, Container, Typography } from '@mui/material';
+import { Tab, Link, Tabs, Alert, Button, Container, Typography } from '@mui/material';
+
+import { RouterLink } from 'src/routes/components';
 
 import useAuth from 'src/hooks/auth';
 import useEventBus from 'src/hooks/event-bus';
@@ -19,7 +21,6 @@ import { bgBlur } from 'src/theme/css';
 import Logo from 'src/components/logo';
 import Iconify from 'src/components/iconify';
 
-import { NavItem } from './nav';
 import { HEADER } from './config-layout';
 import navConfig from './config-navigation';
 import AccountPopover from './common/account-popover';
@@ -38,73 +39,82 @@ export default function Header({ onOpenNav }) {
 
   const downLg = useResponsive('down', 'lg');
 
+  const [navItem, setNavItem] = useState(0);
+
   const onOpenRechargeDialog = () => $emit('@dialog.recharge.action.open');
   const onOpenAuthDialog = () => $emit('@dialog.auth.action.open');
+
+  const onChangeNavItem = (_e, newNavItem) => {
+    setNavItem(newNavItem);
+  };
 
   const onCloseAlert = useCallback(() => {
     setShouldShowMiniGameAlert(false);
   }, [setShouldShowMiniGameAlert]);
 
   const renderContent = (
-    <Container>
-      <Stack direction="row" alignItems="center" justifyContent="space-between">
-        {downLg ? (
-          <IconButton onClick={onOpenNav}>
-            <Iconify icon="eva:menu-2-fill" />
-          </IconButton>
-        ) : (
-          <Logo />
-        )}
+    <>
+      {downLg ? (
+        <IconButton onClick={onOpenNav}>
+          <Iconify icon="eva:menu-2-fill" />
+        </IconButton>
+      ) : (
+        <Logo />
+      )}
 
-        {!downLg && (
-          <Stack direction="row" component="nav" spacing={0.5} sx={{ px: 1 }}>
-            {navConfig.map((item) => {
-              if (item.type === 'authenticated' && !user) return null;
-              return <NavItem key={item.title} item={item} />;
-            })}
-          </Stack>
-        )}
+      {!downLg && (
+        <Tabs centered value={navItem} onChange={onChangeNavItem}>
+          {navConfig.map((item, index) => {
+            if (item.type === 'authenticated' && !user) return null;
 
-        {downLg && (
-          <Stack alignItems="center" sx={{ flexGrow: 1 }}>
-            <Logo sx={{ height: 32 }} />
-          </Stack>
-        )}
+            return (
+              <Tab label={item.title} component={RouterLink} href={item.path} icon={item.icon}>
+                {item.title}
+              </Tab>
+            );
+          })}
+        </Tabs>
+      )}
 
-        <Stack
-          direction="row"
-          alignItems="center"
-          spacing={1}
-          sx={{
-            ml: {
-              lg: 0,
-              md: 0,
-              sm: 'auto',
-              xs: 'auto',
-            },
-          }}
-        >
-          {user ? (
-            <>
-              <Button
-                color="warning"
-                variant="outlined"
-                onClick={onOpenRechargeDialog}
-                endIcon={<Iconify icon="material-symbols:poker-chip" />}
-              >
-                {user?.balance || 0}
-              </Button>
-              {/* <NotificationsPopover /> */}
-              <AccountPopover />
-            </>
-          ) : (
-            <Button variant="contained" onClick={onOpenAuthDialog}>
-              Đăng nhập
-            </Button>
-          )}
+      {downLg && (
+        <Stack alignItems="center" sx={{ flexGrow: 1 }}>
+          <Logo sx={{ height: 32 }} />
         </Stack>
+      )}
+
+      <Stack
+        direction="row"
+        alignItems="center"
+        spacing={1}
+        sx={{
+          ml: {
+            lg: 0,
+            md: 0,
+            sm: 'auto',
+            xs: 'auto',
+          },
+        }}
+      >
+        {user ? (
+          <>
+            <Button
+              color="warning"
+              variant="outlined"
+              onClick={onOpenRechargeDialog}
+              endIcon={<Iconify icon="material-symbols:poker-chip" />}
+            >
+              {user?.balance || 0}
+            </Button>
+            {/* <NotificationsPopover /> */}
+            <AccountPopover />
+          </>
+        ) : (
+          <Button variant="contained" onClick={onOpenAuthDialog}>
+            Đăng nhập
+          </Button>
+        )}
       </Stack>
-    </Container>
+    </>
   );
 
   useEffect(() => {
@@ -115,6 +125,12 @@ export default function Header({ onOpenNav }) {
     if (shouldShowMiniGameAlert === false) {
       onCloseAlert();
     }
+
+    navConfig.forEach((nav, index) => {
+      if (location.pathname.includes(nav.path)) {
+        setNavItem(index);
+      }
+    });
   }, [location, shouldShowMiniGameAlert, onCloseAlert]);
 
   return (
@@ -123,6 +139,9 @@ export default function Header({ onOpenNav }) {
       sx={{
         boxShadow: 'none',
         height: HEADER.H_MOBILE,
+        background: 'transparent !important',
+        backgroundImage: 'none',
+        mt: 2,
         zIndex: theme.zIndex.appBar + 1,
         ...bgBlur({
           color: theme.palette.background.default,
@@ -155,15 +174,29 @@ export default function Header({ onOpenNav }) {
             </Typography>
           </Alert>
         )}
+
+        <Toolbar
+          variant="regular"
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexShrink: 0,
+            borderRadius: '999px',
+            bgcolor:
+              theme.palette.mode === 'light' ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)',
+            backdropFilter: 'blur(24px)',
+            border: '1px solid',
+            borderColor: 'divider',
+            boxShadow:
+              theme.palette.mode === 'light'
+                ? `0 0 1px rgba(85, 166, 246, 0.1), 1px 1.5px 2px -1px rgba(85, 166, 246, 0.15), 4px 4px 12px -2.5px rgba(85, 166, 246, 0.15)`
+                : '0 0 1px rgba(2, 31, 59, 0.7), 1px 1.5px 2px -1px rgba(2, 31, 59, 0.65), 4px 4px 12px -2.5px rgba(2, 31, 59, 0.65)',
+          }}
+        >
+          {renderContent}
+        </Toolbar>
       </Container>
-      <Toolbar
-        sx={{
-          height: 1,
-          px: { lg: 5 },
-        }}
-      >
-        {renderContent}
-      </Toolbar>
     </AppBar>
   );
 }

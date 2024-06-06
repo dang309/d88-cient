@@ -8,6 +8,7 @@ import Avatar from '@mui/material/Avatar';
 import { alpha } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import ListItemButton from '@mui/material/ListItemButton';
+import { ListItemIcon, ListItemText } from '@mui/material';
 
 import { usePathname } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
@@ -131,7 +132,7 @@ export function NavItem({ item }) {
         minHeight: 44,
         borderRadius: 0.75,
         typography: 'body2',
-        color: 'text.secondary',
+        color: item.color || 'text.secondary',
         textTransform: 'capitalize',
         fontWeight: 'fontWeightMedium',
         ...(active && {
@@ -144,11 +145,9 @@ export function NavItem({ item }) {
         }),
       }}
     >
-      <Box component="span" sx={{ width: 24, height: 24, mr: 2 }}>
-        {item.icon}
-      </Box>
+      <ListItemIcon>{item.icon}</ListItemIcon>
 
-      <Box component="span">{item.title} </Box>
+      <ListItemText primary={item.title} />
     </ListItemButton>
   );
 }

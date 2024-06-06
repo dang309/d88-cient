@@ -1,2 +1,9 @@
 /* scrollbar */
 @import 'simplebar-react/dist/simplebar.min.css';
+
+#root {
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(180deg, #cee5fd, #fff);
+  background-repeat: no-repeat;
+}

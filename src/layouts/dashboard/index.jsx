@@ -61,7 +61,7 @@ export default function DashboardLayout({ children }) {
   }, [onCheckPredictionWinner]);
 
   return (
-    <>
+    <Box >
       <Header onOpenNav={() => setOpenNav(true)} />
 
       <Box
@@ -82,7 +82,7 @@ export default function DashboardLayout({ children }) {
         <PredictionRuleDialog />
         <CongratulationDialog />
       </Box>
-    </>
+    </Box>
   );
 }
 

@@ -3,7 +3,7 @@ import Iconify from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 const icon = (name) => (
-  <Iconify icon={name} sx={{ width: 1, height: 1 }} />
+  <Iconify icon={name} sx={{ width: 24, height: 24 }} />
 );
 
 const navConfig = [
@@ -18,6 +18,12 @@ const navConfig = [
     path: '/bet-history',
     icon: icon('line-md:clipboard-list-twotone'),
     type: 'authenticated'
+  },
+  {
+    title: 'Sảnh danh vọng',
+    path: '/hall-of-fame',
+    icon: icon('line-md:star-pulsating-filled-loop'),
+    type: 'authenticated',
   },
   {
     title: 'Lịch sử nạp/rút',

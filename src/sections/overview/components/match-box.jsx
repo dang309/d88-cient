@@ -12,12 +12,24 @@ const MatchBox = ({ match, isComingMatch }) => {
   const onOpenBetDialog = () => $emit('@dialog.bet.action.open', { match });
 
   return (
-    <Card elevation={8} sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', flexDirection: 'column' }}>
+    <Card
+      elevation={8}
+      sx={{
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'space-between',
+        flexDirection: 'column',
+        boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px',
+      }}
+    >
       <CardHeader
         title={
-          <Stack direction='row' alignItems='center' spacing={2}>
+          <Stack direction="row" alignItems="center" spacing={2}>
             <Box sx={{ width: 64 }}>
-              <img src='https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/UEFA_Euro_2024_logo.svg/2560px-UEFA_Euro_2024_logo.svg.png' alt='' />
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/UEFA_Euro_2024_logo.svg/2560px-UEFA_Euro_2024_logo.svg.png"
+                alt=""
+              />
             </Box>
           </Stack>
         }

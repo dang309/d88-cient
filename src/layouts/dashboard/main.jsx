@@ -8,7 +8,7 @@ import { HEADER } from './config-layout';
 
 // ----------------------------------------------------------------------
 
-const SPACING = 8;
+const SPACING = 24;
 
 export default function Main({ children, sx, ...other }) {
   const downLg = useResponsive('down', 'lg');
