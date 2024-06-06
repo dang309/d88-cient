@@ -61,12 +61,13 @@ export default function DashboardLayout({ children }) {
   }, [onCheckPredictionWinner]);
 
   return (
-    <Box >
+    <>
       <Header onOpenNav={() => setOpenNav(true)} />
 
       <Box
         sx={{
           minHeight: 1,
+          maxHeight: '100%',
           display: 'flex',
           flexDirection: { xs: 'column', lg: 'row' },
         }}
@@ -82,7 +83,7 @@ export default function DashboardLayout({ children }) {
         <PredictionRuleDialog />
         <CongratulationDialog />
       </Box>
-    </Box>
+    </>
   );
 }
 
