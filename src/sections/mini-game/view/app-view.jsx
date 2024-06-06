@@ -235,7 +235,7 @@ export default function AppView() {
                                   <Stack alignItems="center">
                                     <Iconify
                                       icon={`circle-flags:${prediction?.match?.firstTeamFlag}`}
-                                      sx={{ height: 24, width: 24 }}
+                                      height={24} width={24}
                                     />
                                   </Stack>
                                 </Grid2>
@@ -252,7 +252,7 @@ export default function AppView() {
                                   <Stack alignItems="center">
                                     <Iconify
                                       icon={`circle-flags:${prediction?.match?.secondTeamFlag}`}
-                                      sx={{ height: 24, width: 24 }}
+                                      height={24} width={24}
                                     />
                                   </Stack>
                                 </Grid2>

@@ -45,7 +45,7 @@ const MatchVersus = ({
       {...sx}
     >
       <Grid2 item lg={2} md={3} sm={3} xs={3}>
-        <Stack alignItems="center" justifyContent="center">
+        <Stack alignItems="center" justifyContent="center" spacing={0.5}>
           <Iconify icon={`circle-flags:${firstTeamFlag}`} height={iconSize} width={iconSize} />
           <Typography noWrap variant="caption" sx={{ textAlign: 'center' }}>
             {isFirstTeamTop ? (
@@ -93,8 +93,8 @@ const MatchVersus = ({
       </Grid2>
 
       <Grid2 item lg={2} md={3} sm={3} xs={3}>
-        <Stack alignItems="center" justifyContent="center">
-          <Iconify icon={`circle-flags:${secondTeamFlag}`} sx={{ height: iconSize, width: iconSize }} />
+        <Stack alignItems="center" justifyContent="center" spacing={0.5}>
+          <Iconify icon={`circle-flags:${secondTeamFlag}`} height={iconSize} width={iconSize} />
           <Typography noWrap variant="caption" sx={{ textAlign: 'center' }}>
             {isSecondTeamTop ? (
               <mark>

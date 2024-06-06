@@ -81,9 +81,9 @@ export default function BetDialog(props) {
     if (amount % 1 !== 0) {
       _err = 'Tiền cược không được lẻ';
     } else if (amount < MIN_BET_AMOUNT) {
-      _err = 'Tiền cược tối thiểu 1 chip';
+      _err = `Tiền cược tối thiểu ${MIN_BET_AMOUNT} chip`;
     } else if (amount > MAX_BET_AMOUNT) {
-      _err = 'Tiền cược tối đa là 70 chip';
+      _err = `Tiền cược tối đa là ${MAX_BET_AMOUNT} chip`;
     } else if (amount > balance) {
       _err = 'Số dư không đủ';
     }
@@ -261,7 +261,7 @@ export default function BetDialog(props) {
                           alignItems="center"
                           spacing={downSm ? 0 : 1}
                         >
-                          <Iconify icon={`circle-flags:${firstTeamFlag}`} sx={{ height: 32, width: 32 }} />
+                          <Iconify icon={`circle-flags:${firstTeamFlag}`} height={32} width={32} />
                           <Typography variant={downSm ? 'caption' : 'subtitle2'}>
                             {firstTeamName === topTeamName ? (
                               <mark>{firstTeamName}</mark>
@@ -293,7 +293,7 @@ export default function BetDialog(props) {
                               secondTeamName
                             )}
                           </Typography>
-                          <Iconify icon={`circle-flags:${secondTeamFlag}`} sx={{ height: 32, width: 32 }} />
+                          <Iconify icon={`circle-flags:${secondTeamFlag}`} height={32} width={32} />
                         </Stack>
                       </Stack>
                     </ToggleButton>
