@@ -41,7 +41,7 @@ import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 
 const MIN_BET_AMOUNT = 1;
-const MAX_BET_AMOUNT = 70;
+const MAX_BET_AMOUNT = 100;
 
 const TAB = {
   HANDICAP: 0,
