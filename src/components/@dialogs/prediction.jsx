@@ -21,7 +21,7 @@ import { PredictionAPI } from 'src/api';
 import Iconify from '../iconify';
 
 export default function PredictionDialog() {
-  const { $on } = useEventBus();
+  const { $on, $emit } = useEventBus();
   const { user, initialize } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
   const { mutate } = useSWRConfig();
@@ -61,6 +61,9 @@ export default function PredictionDialog() {
   };
 
   const onPredict = async () => {
+    if(_.isNil(user)) {
+      return $emit('@dialog.auth.action.open')
+    }
     if (match && user) {
       const dataToSend = {
         match: match.id,

@@ -1,4 +1,5 @@
 import qs from 'qs';
+import _ from 'lodash';
 import { useState, Fragment, useEffect } from 'react';
 import { motion, stagger, useAnimate } from 'framer-motion';
 
@@ -26,6 +27,7 @@ import {
 } from '@mui/material';
 
 import useData from 'src/hooks/data';
+import useAuth from 'src/hooks/auth';
 import useEventBus from 'src/hooks/event-bus';
 
 import { MatchAPI } from 'src/api';
@@ -40,6 +42,7 @@ import { MatchVersus } from 'src/components/match-versus';
 export default function AppView() {
   const { $emit } = useEventBus();
   const [scope, animate] = useAnimate();
+  const { user } = useAuth();
 
   const [match, setMatch] = useState();
   const [tab, setTab] = useState(0);
@@ -48,10 +51,10 @@ export default function AppView() {
     items: predictions,
     pagination: predictionPagination,
     isLoading: isLoadingPrediction,
-  } = useData(match ? `/predictions?populate=*&filters[match][id][$eq]=${match.id}` : null);
+  } = useData(match && user ? `/predictions?populate=*&filters[match][id][$eq]=${match.id}` : null);
 
   const { items: predictionResults, isLoading: isLoadingPredictionResult } = useData(
-    match
+    match && user
       ? `/prediction-results?${qs.stringify({
           fields: ['prize', 'isRead'],
           populate: {
@@ -73,6 +76,9 @@ export default function AppView() {
   );
 
   const onOpenPredictionDialog = () => {
+    if(_.isNil(user)) {
+      return $emit('@dialog.auth.action.open')
+    }
     $emit('@dialog.prediction.action.open', { match });
     setTab(0);
   };
@@ -196,7 +202,13 @@ export default function AppView() {
             <CardHeader
               sx={{ p: 0, borderBottom: `1px dashed ${grey[200]}` }}
               title={
-                <Tabs value={tab} onChange={onChangeTab} centered textColor="secondary" indicatorColor='secondary'>
+                <Tabs
+                  value={tab}
+                  onChange={onChangeTab}
+                  centered
+                  textColor="secondary"
+                  indicatorColor="secondary"
+                >
                   <Tab label="Danh sách dự đoán" />
                   <Tab label="Kẻ chiến thắng" />
                 </Tabs>
@@ -235,7 +247,8 @@ export default function AppView() {
                                   <Stack alignItems="center">
                                     <Iconify
                                       icon={`circle-flags:${prediction?.match?.firstTeamFlag}`}
-                                      height={24} width={24}
+                                      height={24}
+                                      width={24}
                                     />
                                   </Stack>
                                 </Grid2>
@@ -252,7 +265,8 @@ export default function AppView() {
                                   <Stack alignItems="center">
                                     <Iconify
                                       icon={`circle-flags:${prediction?.match?.secondTeamFlag}`}
-                                      height={24} width={24}
+                                      height={24}
+                                      width={24}
                                     />
                                   </Stack>
                                 </Grid2>
