@@ -1,19 +1,34 @@
 import qs from 'qs';
 import { useMeasure } from 'react-use';
+import { Fragment, useState, useEffect } from 'react';
 
 import Container from '@mui/material/Container';
-import { Card, Grid, List, Divider, CardHeader, CardContent, ListItemButton } from '@mui/material';
+import {
+  Box,
+  Card,
+  Grid,
+  List,
+  Stack,
+  Button,
+  Divider,
+  CardHeader,
+  CardContent,
+  CardActions,
+  ListItemText,
+  ListSubheader,
+  ListItemButton,
+} from '@mui/material';
 
 import useData from 'src/hooks/data';
 import useEventBus from 'src/hooks/event-bus';
 import { useResponsive } from 'src/hooks/use-responsive';
 
+import { MatchAPI } from 'src/api';
+
 import Label from 'src/components/label';
 import Scrollbar from 'src/components/scrollbar';
 import { Empty, Loader } from 'src/components/common';
 import { MatchVersus } from 'src/components/match-versus';
-
-import MatchBox from '../components/match-box';
 
 // ----------------------------------------------------------------------
 
@@ -25,14 +40,22 @@ export default function AppView() {
   );
   const { $emit } = useEventBus();
   const downSm = useResponsive('down', 'sm');
-
   const [ref, { height }] = useMeasure();
 
-  console.log({ height });
+  const [comingMatch, setComingMatch] = useState();
+
+  const loadComingMatch = () => {
+    MatchAPI.getComingMatch().then((res) => {
+      console.log(res?.data?.data);
+      setComingMatch(res?.data?.data);
+    });
+  };
 
   const onOpenBetDialog = (match) => $emit('@dialog.bet.action.open', { match });
 
-  const comingMatch = matches && matches[0];
+  useEffect(() => {
+    loadComingMatch();
+  }, []);
 
   return (
     <Container ref={ref} sx={{ maxHeight: '100%', pb: 2 }}>
@@ -48,7 +71,37 @@ export default function AppView() {
         spacing={1}
       >
         <Grid item lg={8} md={8} sm={12} xs={12}>
-          <MatchBox match={comingMatch} isComingMatch />
+          <Card
+            elevation={8}
+            sx={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'space-between',
+              flexDirection: 'column',
+              boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px',
+            }}
+          >
+            <CardHeader
+              title={
+                <Stack direction="row" alignItems="center" spacing={2}>
+                  <Box sx={{ width: 64 }}>
+                    <img
+                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/UEFA_Euro_2024_logo.svg/2560px-UEFA_Euro_2024_logo.svg.png"
+                      alt=""
+                    />
+                  </Box>
+                </Stack>
+              }
+            />
+            <CardContent>
+              <MatchVersus match={comingMatch} showType showDatetime isComingMatch />
+            </CardContent>
+            <CardActions>
+              <Button fullWidth variant="contained" onClick={onOpenBetDialog}>
+                Xem
+              </Button>
+            </CardActions>
+          </Card>
         </Grid>
         <Grid item lg={4} md={4} sm={12} xs={12}>
           <Card>
@@ -60,23 +113,38 @@ export default function AppView() {
                   overflow: downSm ? 'hidden' : 'auto',
                 }}
               >
-                <List disablePadding>
+                <List
+                  disablePadding
+                  sx={{
+                    '& ul': { padding: 0 },
+                  }}
+                >
                   {matches &&
-                    matches.map((match, index) => (
-                      <>
-                        <ListItemButton key={match.id} onClick={() => onOpenBetDialog(match)}>
-                          <MatchVersus
-                            match={match}
-                            showVersus
-                            justifyContent="space-evenly"
-                            sx={{
-                              width: '100%',
-                            }}
-                          />
-                        </ListItemButton>
-                        <Divider component="li" />
-                      </>
+                    Object.keys(matches).map((date) => (
+                      <li key={`section-${date}`}>
+                        <ul>
+                          <ListSubheader>{date}</ListSubheader>
+                          {matches[date] &&
+                            matches[date].map((match) => (
+                              <Fragment key={`match-${match.id}`}>
+                                <ListItemButton onClick={() => onOpenBetDialog(match)}>
+                                  <ListItemText
+                                    primary={
+                                      <MatchVersus
+                                        match={match}
+                                        showVersus
+                                        justifyContent="start"
+                                      />
+                                    }
+                                  />
+                                </ListItemButton>
+                                <Divider />
+                              </Fragment>
+                            ))}
+                        </ul>
+                      </li>
                     ))}
+
                   {isLoading && <Loader />}
                   {!isLoading && matches && matches.length === 0 && <Empty />}
                 </List>

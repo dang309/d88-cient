@@ -82,12 +82,13 @@ const MatchVersus = ({
               <Label variant="outlined" startIcon={<Iconify icon="mingcute:calendar-2-line" />}>
                 {moment(datetime).format('DD/MM | HH:mm')}
               </Label>
-              {isComingMatch && (
-                <Label color="warning" startIcon={<Iconify icon="svg-spinners:3-dots-scale" />}>
-                  Sắp diễn ra
-                </Label>
-              )}
             </Stack>
+          )}
+
+          {isComingMatch && (
+            <Label color="warning" startIcon={<Iconify icon="svg-spinners:3-dots-scale" />}>
+              Sắp diễn ra
+            </Label>
           )}
         </Stack>
       </Grid2>

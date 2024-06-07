@@ -38,8 +38,8 @@ const MatchBox = ({ match, isComingMatch }) => {
         <MatchVersus match={match} showResult showType showDatetime isComingMatch={isComingMatch} />
       </CardContent>
       <CardActions>
-        <Button fullWidth variant="outlined" onClick={onOpenBetDialog}>
-          Xem kèo
+        <Button fullWidth variant="contained" onClick={onOpenBetDialog}>
+          Xem
         </Button>
       </CardActions>
     </Card>
