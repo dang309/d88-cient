@@ -59,7 +59,7 @@ export default function RechargeDialog() {
         <DialogContentText id="alert-dialog-description">
           <Stack alignItems="start" spacing={1}>
             <Typography variant="subtitle2">Quét mã bên dưới và nhập số tiền muốn nạp. </Typography>
-            <Typography variant="subtitle2">Chip sẽ được cập nhật chậm nhất là 15 phút</Typography>
+            <Typography variant="subtitle2">Chip sẽ được cập nhật chậm nhất là 5 phút</Typography>
           </Stack>
         </DialogContentText>
         <Stack alignItems="center" sx={{ p: 2 }}>
