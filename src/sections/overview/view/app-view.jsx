@@ -99,7 +99,7 @@ export default function AppView() {
                 <MatchVersus match={comingMatch} showType showDatetime isComingMatch />
               </CardContent>
               <CardActions>
-                <Button fullWidth variant="contained" onClick={onOpenBetDialog}>
+                <Button fullWidth variant="contained" onClick={() => onOpenBetDialog(comingMatch)}>
                   Xem
                 </Button>
               </CardActions>
