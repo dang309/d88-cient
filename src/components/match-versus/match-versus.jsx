@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import moment from 'moment';
 import PropTypes from 'prop-types';
 
 import { Stack, Typography } from '@mui/material';
@@ -14,6 +13,7 @@ const MatchVersus = ({
   showVersus,
   showType,
   showDatetime,
+  showTime,
   isComingMatch,
   sx,
 }) => {
@@ -24,6 +24,7 @@ const MatchVersus = ({
     secondTeamName,
     topTeamName,
     datetime,
+    time,
     result,
   } = match;
 
@@ -80,7 +81,15 @@ const MatchVersus = ({
           {showDatetime && (
             <Stack alignItems="center" gap={0.5}>
               <Label variant="outlined" startIcon={<Iconify icon="mingcute:calendar-2-line" />}>
-                {moment(datetime).format('DD/MM | HH:mm')}
+                {datetime}
+              </Label>
+            </Stack>
+          )}
+
+          {showTime && (
+            <Stack alignItems="center" gap={0.5}>
+              <Label startIcon={<Iconify icon="mingcute:time-line" />}>
+                {time}
               </Label>
             </Stack>
           )}
@@ -117,6 +126,7 @@ MatchVersus.propTypes = {
   showVersus: PropTypes.bool,
   showType: PropTypes.bool,
   showDatetime: PropTypes.bool,
+  showTime: PropTypes.bool,
   isComingMatch: PropTypes.bool,
   sx: PropTypes.object,
 };

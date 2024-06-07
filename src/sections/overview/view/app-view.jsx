@@ -11,6 +11,7 @@ import {
   Stack,
   Button,
   Divider,
+  Skeleton,
   CardHeader,
   CardContent,
   CardActions,
@@ -71,37 +72,42 @@ export default function AppView() {
         spacing={1}
       >
         <Grid item lg={8} md={8} sm={12} xs={12}>
-          <Card
-            elevation={8}
-            sx={{
-              width: '100%',
-              display: 'flex',
-              justifyContent: 'space-between',
-              flexDirection: 'column',
-              boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px',
-            }}
-          >
-            <CardHeader
-              title={
-                <Stack direction="row" alignItems="center" spacing={2}>
-                  <Box sx={{ width: 64 }}>
-                    <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/UEFA_Euro_2024_logo.svg/2560px-UEFA_Euro_2024_logo.svg.png"
-                      alt=""
-                    />
-                  </Box>
-                </Stack>
-              }
-            />
-            <CardContent>
-              <MatchVersus match={comingMatch} showType showDatetime isComingMatch />
-            </CardContent>
-            <CardActions>
-              <Button fullWidth variant="contained" onClick={onOpenBetDialog}>
-                Xem
-              </Button>
-            </CardActions>
-          </Card>
+          {comingMatch && (
+            <Card
+              elevation={8}
+              sx={{
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'space-between',
+                flexDirection: 'column',
+                boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px',
+              }}
+            >
+              <CardHeader
+                title={
+                  <Stack direction="row" alignItems="center" spacing={2}>
+                    <Box sx={{ width: 64 }}>
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/UEFA_Euro_2024_logo.svg/2560px-UEFA_Euro_2024_logo.svg.png"
+                        alt=""
+                      />
+                    </Box>
+                  </Stack>
+                }
+              />
+              <CardContent>
+                <MatchVersus match={comingMatch} showType showDatetime isComingMatch />
+              </CardContent>
+              <CardActions>
+                <Button fullWidth variant="contained" onClick={onOpenBetDialog}>
+                  Xem
+                </Button>
+              </CardActions>
+            </Card>
+          )}
+          {!comingMatch && (
+            <Skeleton variant="rectangular" sx={{ width: '100%', height: height / 2 }} />
+          )}
         </Grid>
         <Grid item lg={4} md={4} sm={12} xs={12}>
           <Card>
@@ -130,11 +136,7 @@ export default function AppView() {
                                 <ListItemButton onClick={() => onOpenBetDialog(match)}>
                                   <ListItemText
                                     primary={
-                                      <MatchVersus
-                                        match={match}
-                                        showVersus
-                                        justifyContent="start"
-                                      />
+                                      <MatchVersus match={match} showTime justifyContent="start" />
                                     }
                                   />
                                 </ListItemButton>
