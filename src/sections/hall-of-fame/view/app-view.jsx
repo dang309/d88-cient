@@ -55,7 +55,7 @@ const HallOfFamePage = () => {
                         : index === 1
                           ? 'noto:2nd-place-medal'
                           : 'noto:3rd-place-medal';
-                    const iconSize = index === 0 ? 48 : index === 1 ? 32 : 24;
+                    const iconSize = index === 0 ? 48 : index === 1 ? 40 : 32;
                     return (
                       <Fragment key={index}>
                         <ListItem>

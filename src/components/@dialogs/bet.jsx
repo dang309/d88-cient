@@ -122,6 +122,23 @@ export default function BetDialog(props) {
     e.preventDefault();
     if (!user) return $emit('@dialog.auth.action.open');
 
+    if (!betValue) {
+      if (tab === TAB.HANDICAP)
+        return enqueueSnackbar(
+          `Vui lòng chọn ${match?.firstTeamName} hoặc ${match?.secondTeamName}`,
+          {
+            variant: 'error'
+          }
+        );
+      if (tab === TAB.OVER_UNDER)
+        return enqueueSnackbar(
+          `Vui lòng chọn Tài hoặc Xỉu`,
+          {
+            variant: 'error'
+          }
+        );
+    }
+
     setErr('');
     setIsLoading(true);
     const error = validateBetAmount(betAmount, user?.balance);
@@ -173,10 +190,11 @@ export default function BetDialog(props) {
   React.useEffect(() => {
     $on('@dialog.bet.action.open', (data) => {
       setMatch(data?.match);
-      setBetValue(data?.match?.firstTeamName);
+      if (tab === TAB.HANDICAP) setBetValue(data?.match?.firstTeamName);
+      else if (tab === TAB.OVER_UNDER) setBetValue('over');
       onOpen();
     });
-  }, [$on]);
+  }, [$on, tab]);
 
   React.useEffect(() => {
     if (window.confetti) {
@@ -275,12 +293,12 @@ export default function BetDialog(props) {
                         <Stack
                           direction={downSm ? 'column' : 'row'}
                           alignItems="center"
-                          spacing={downSm ? 0 : 1}
+                          spacing={downSm ? 0.5 : 1}
                         >
-                          <Iconify icon={`circle-flags:${firstTeamFlag}`} height={32} width={32} />
+                          <Iconify icon={`circle-flags:${firstTeamFlag}`} height={downSm ? 24 : 32} width={downSm ? 24 : 32} />
                           <Typography variant={downSm ? 'caption' : 'subtitle2'}>
                             {firstTeamName === topTeamName ? (
-                              <mark>{firstTeamName}</mark>
+                              <strong><mark>{firstTeamName}</mark></strong>
                             ) : (
                               firstTeamName
                             )}
@@ -300,16 +318,16 @@ export default function BetDialog(props) {
                         <Stack
                           direction={downSm ? 'column-reverse' : 'row'}
                           alignItems="center"
-                          spacing={downSm ? 0 : 1}
+                          spacing={downSm ? 0.5 : 1}
                         >
                           <Typography variant={downSm ? 'caption' : 'subtitle2'}>
                             {secondTeamName === topTeamName ? (
-                              <mark>{secondTeamName}</mark>
+                              <strong><mark>{secondTeamName}</mark></strong>
                             ) : (
                               secondTeamName
                             )}
                           </Typography>
-                          <Iconify icon={`circle-flags:${secondTeamFlag}`} height={32} width={32} />
+                          <Iconify icon={`circle-flags:${secondTeamFlag}`} height={downSm ? 24: 32} width={downSm ? 24: 32} />
                         </Stack>
                       </Stack>
                     </ToggleButton>

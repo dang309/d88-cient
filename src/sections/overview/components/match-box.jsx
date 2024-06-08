@@ -39,7 +39,7 @@ const MatchBox = ({ match, isComingMatch }) => {
       </CardContent>
       <CardActions>
         <Button fullWidth variant="contained" onClick={onOpenBetDialog}>
-          Xem
+          Đặt cược
         </Button>
       </CardActions>
     </Card>

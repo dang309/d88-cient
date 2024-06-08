@@ -76,8 +76,8 @@ export default function AppView() {
   );
 
   const onOpenPredictionDialog = () => {
-    if(_.isNil(user)) {
-      return $emit('@dialog.auth.action.open')
+    if (_.isNil(user)) {
+      return $emit('@dialog.auth.action.open');
     }
     $emit('@dialog.prediction.action.open', { match });
     setTab(0);
@@ -247,8 +247,8 @@ export default function AppView() {
                                   <Stack alignItems="center">
                                     <Iconify
                                       icon={`circle-flags:${prediction?.match?.firstTeamFlag}`}
-                                      height={24}
-                                      width={24}
+                                      height={20}
+                                      width={20}
                                     />
                                   </Stack>
                                 </Grid2>
@@ -265,8 +265,8 @@ export default function AppView() {
                                   <Stack alignItems="center">
                                     <Iconify
                                       icon={`circle-flags:${prediction?.match?.secondTeamFlag}`}
-                                      height={24}
-                                      width={24}
+                                      height={20}
+                                      width={20}
                                     />
                                   </Stack>
                                 </Grid2>
@@ -289,7 +289,7 @@ export default function AppView() {
                   {predictionResults &&
                     predictionResults.map((prediction, index) => (
                       <Fragment key={prediction.id}>
-                        <ListItem alignItems="flex-start">
+                        <ListItem alignItems="center">
                           <ListItemAvatar>
                             <Avatar
                               alt={prediction?.winner?.username}
@@ -302,24 +302,51 @@ export default function AppView() {
                                 <Typography variant="subtitle2">
                                   {prediction?.winner?.username}
                                 </Typography>
-                                <Label
-                                  color="warning"
-                                  endIcon={<Iconify icon="material-symbols:poker-chip" />}
-                                >
-                                  + {prediction.prize}
-                                </Label>
                               </Stack>
                             }
                             secondary={
-                              <Stack>
-                                <MatchVersus
-                                  match={prediction?.match}
-                                  showResult
-                                  sx={{ justifyContent: 'start' }}
-                                />
-                              </Stack>
+                              <Grid2
+                                container
+                                justifyContent="flex-start"
+                                alignItems="center"
+                                spacing={1}
+                              >
+                                <Grid2 item lg="auto" md="auto" sm="auto" xs="auto">
+                                  <Stack alignItems="center">
+                                    <Iconify
+                                      icon={`circle-flags:${prediction?.match?.firstTeamFlag}`}
+                                      height={20}
+                                      width={20}
+                                    />
+                                  </Stack>
+                                </Grid2>
+
+                                <Grid2 item lg="auto" md="auto" sm="auto" xs="auto">
+                                  <Stack direction="row" alignItems="center" spacing={1}>
+                                    <Label>{prediction?.match?.result?.firstTeamScore || 0}</Label>
+                                    <Typography>:</Typography>
+                                    <Label>{prediction?.match?.result?.secondTeamScore || 0}</Label>
+                                  </Stack>
+                                </Grid2>
+
+                                <Grid2 item lg="auto" md="auto" sm="auto" xs="auto">
+                                  <Stack alignItems="center">
+                                    <Iconify
+                                      icon={`circle-flags:${prediction?.match?.secondTeamFlag}`}
+                                      height={20}
+                                      width={20}
+                                    />
+                                  </Stack>
+                                </Grid2>
+                              </Grid2>
                             }
                           />
+                          <Label
+                            color="warning"
+                            endIcon={<Iconify icon="material-symbols:poker-chip" />}
+                          >
+                            + {prediction.prize}
+                          </Label>
                         </ListItem>
                         {index !== predictionResults.length - 1 && <Divider variant="inset" />}
                       </Fragment>

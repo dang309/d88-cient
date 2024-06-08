@@ -100,7 +100,7 @@ export default function AppView() {
               </CardContent>
               <CardActions>
                 <Button fullWidth variant="contained" onClick={() => onOpenBetDialog(comingMatch)}>
-                  Xem
+                  Đặt cược
                 </Button>
               </CardActions>
             </Card>
