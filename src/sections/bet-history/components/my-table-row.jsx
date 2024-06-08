@@ -1,8 +1,9 @@
 import _ from 'lodash';
 import moment from 'moment';
+import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 
-import Stack from '@mui/material/Stack';
+import { Stack } from '@mui/material';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import Typography from '@mui/material/Typography';
@@ -15,6 +16,28 @@ import { MatchVersus } from 'src/components/match-versus';
 
 export default function MyTableRow({ row }) {
   const { match, value, amount, type, profit, loss, winOrLoseType } = row;
+
+
+  const betFormula = useMemo(() => {
+    if(_.isNil(winOrLoseType)) return '';
+    if(winOrLoseType === 'winFull') return `Số chip đã đặt * tỉ lệ cược`
+    if(winOrLoseType === 'winHalf') return `(Số chip đã đặt * tỉ lệ cược) / 2`
+    if(winOrLoseType === 'loseFull') return `Mất toàn bộ tiền cược`
+    if(winOrLoseType === 'loseHalf') return `Số chip đã đặt / 2`
+  }, [winOrLoseType])
+
+  const getResultType = (_winOrLoseType) => {
+    let result = '';
+
+    if (_winOrLoseType === 'draw') result = 'Hòa';
+    if (_winOrLoseType === 'winFull') result = 'Thắng đủ';
+    if (_winOrLoseType === 'winHalf') result = 'Thắng nửa';
+    if (_winOrLoseType === 'loseFull') result = 'Thua đủ';
+    if (_winOrLoseType === 'loseHalf') result = 'Thua nửa';
+
+    return result;
+  };
+
   return (
     <TableRow hover tabIndex={-1}>
       <TableCell>
@@ -22,14 +45,9 @@ export default function MyTableRow({ row }) {
       </TableCell>
 
       <TableCell>
-        <Stack gap={0.5}>
-          <Label color="warning" startIcon={<Iconify icon="mingcute:calendar-2-line" />}>
-            {moment(match?.datetime).format('DD/MM')}
-          </Label>
-          <Label color="success" startIcon={<Iconify icon="mingcute:time-line" />}>
-            {moment(match?.datetime).format('HH:mm')}
-          </Label>
-        </Stack>
+        <Label startIcon={<Iconify icon="mingcute:calendar-2-line" />}>
+          {moment(match?.datetime).format('DD/MM HH:mm')}
+        </Label>
       </TableCell>
 
       <TableCell>
@@ -45,6 +63,16 @@ export default function MyTableRow({ row }) {
       </TableCell>
 
       <TableCell>{amount}</TableCell>
+      <TableCell>
+        <Stack alignItems="center" spacing={1}>
+          {getResultType(winOrLoseType)}
+          {winOrLoseType && (
+            <Typography variant='caption'>
+              {betFormula}
+            </Typography>
+          )}
+        </Stack>
+      </TableCell>
       <TableCell>
         {(_.isNil(profit) || _.isNil(loss) || _.isNil(winOrLoseType)) && '-'}
 
