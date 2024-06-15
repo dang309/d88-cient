@@ -1,66 +1,57 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 
-import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 
+import useEventBus from 'src/hooks/event-bus';
+
 export default function ConfirmationDialog(props) {
-  const { btnText, onConfirm, onOpen } = props;
-  const radioGroupRef = React.useRef(null);
+  const { $on } = useEventBus();
+
+  const callbackRef = React.useRef(null)
   const [open, setOpen] = React.useState(false);
 
-  const handleClickListItem = () => {
-    onOpen()
+  const onClose = () => {
+    setOpen(false);
+  };
+
+  const onOpen = () => {
     setOpen(true);
   };
 
-  const handleEntering = () => {
-    if (radioGroupRef.current != null) {
-      radioGroupRef.current.focus();
+  const onConfirm = () => {
+    if(callbackRef.current) {
+      callbackRef.current()
+      onClose()
     }
-  };
+  }
 
-  const handleCancel = () => {
-    onConfirm(false);
-    setOpen(false)
-  };
-
-  const handleOk = () => {
-    onConfirm(true);
-    setOpen(false)
-  };
+  React.useEffect(() => {
+    $on('dialog.confirmation.action.open', (data) => {
+      if(data.callback) callbackRef.current = data.callback
+      onOpen();
+    });
+  }, [$on]);
 
   return (
-    <Box sx={{ width: '100%', bgcolor: 'background.paper' }}>
-      <Button onClick={handleClickListItem} fullWidth variant="contained" color="info">
-        {btnText}
-      </Button>
-      <Dialog
-        sx={{ '& .MuiDialog-paper': { width: '80%', maxHeight: 435 } }}
-        maxWidth="xs"
-        keepMounted
-        TransitionProps={{ onEntering: handleEntering }}
-        open={open}
-      >
-        <DialogContent>Suy nghĩ kỹ chưa, bro ?</DialogContent>
-        <DialogActions>
-          <Button variant="outlined" autoFocus onClick={handleCancel}>
-            Suy nghĩ lại
-          </Button>
-          <Button variant="contained" onClick={handleOk}>
-            Chơi
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+    <Dialog
+      maxWidth="xs"
+      fullWidth
+      open={open}
+    >
+      <DialogContent>Suy nghĩ kỹ chưa, my friend ?</DialogContent>
+      <DialogActions>
+        <Button variant="outlined" autoFocus onClick={onClose}>
+          Suy nghĩ lại
+        </Button>
+        <Button variant="contained" onClick={onConfirm}>
+          Rồi
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }
 
-ConfirmationDialog.propTypes = {
-  btnText: PropTypes.string,
-  onConfirm: PropTypes.func,
-  onOpen: PropTypes.func
-};
+ConfirmationDialog.propTypes = {};

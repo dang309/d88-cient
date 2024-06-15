@@ -28,6 +28,7 @@ const HEAD_LABELS = [
   { id: 'betAmount', label: 'Số chip đã đặt' },
   { id: 'result', label: 'Kết quả', align: 'center' },
   { id: 'profitOrLoss', label: 'Thắng/ Thua' },
+  { id: 'action', label: '' },
 ];
 
 const DEFAULT_PAGE = 0;
@@ -45,6 +46,7 @@ export default function BetHistoryPage() {
     items: bets,
     isLoading,
     pagination,
+    mutate
   } = useData(
     user
       ? `/bets?${qs.stringify({

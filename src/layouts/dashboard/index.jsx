@@ -11,6 +11,7 @@ import useEventBus from 'src/hooks/event-bus';
 import BetDialog from 'src/components/@dialogs/bet';
 import RechargeDialog from 'src/components/@dialogs/recharge';
 import PredictionDialog from 'src/components/@dialogs/prediction';
+import ConfirmationDialog from 'src/components/@dialogs/confirmation';
 import AuthenticationDialog from 'src/components/@dialogs/authentication';
 import CongratulationDialog from 'src/components/@dialogs/congratulation';
 import PredictionRuleDialog from 'src/components/@dialogs/prediction-rule';
@@ -82,6 +83,7 @@ export default function DashboardLayout({ children }) {
         <PredictionDialog />
         <PredictionRuleDialog />
         <CongratulationDialog />
+        <ConfirmationDialog />
       </Box>
     </>
   );
