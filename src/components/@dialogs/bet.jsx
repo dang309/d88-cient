@@ -435,7 +435,7 @@ export default function BetDialog(props) {
                     ),
                   },
                   {
-                    value: Math.round((MIN_BET_AMOUNT + MAX_BET_AMOUNT) / 2),
+                    value: Math.floor((MIN_BET_AMOUNT + MAX_BET_AMOUNT) / 2),
                     label: (
                       <Button
                         color="warning"
