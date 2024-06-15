@@ -42,7 +42,7 @@ import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 
 const MIN_BET_AMOUNT = 1;
-const MAX_BET_AMOUNT = 100;
+const MAX_BET_AMOUNT = 70;
 
 const TAB = {
   HANDICAP: 0,
@@ -435,13 +435,13 @@ export default function BetDialog(props) {
                     ),
                   },
                   {
-                    value: 50,
+                    value: Math.round((MIN_BET_AMOUNT + MAX_BET_AMOUNT) / 2),
                     label: (
                       <Button
                         color="warning"
                         size="small"
                         startIcon={<Iconify icon="mdi:human-male" />}
-                        onClick={() => onChangeBetAmount(50)}
+                        onClick={() => onChangeBetAmount((MIN_BET_AMOUNT + MAX_BET_AMOUNT) / 2)}
                       >
                         Người
                       </Button>
