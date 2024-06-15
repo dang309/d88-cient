@@ -48,39 +48,46 @@ const HallOfFamePage = () => {
             <CardContent>
               {top3Players && (
                 <List>
-                  {top3Players.map((player, index) => {
-                    const icon =
-                      index === 0
-                        ? 'noto:1st-place-medal'
-                        : index === 1
-                          ? 'noto:2nd-place-medal'
-                          : 'noto:3rd-place-medal';
-                    const iconSize = index === 0 ? 48 : index === 1 ? 40 : 32;
-                    return (
-                      <Fragment key={index}>
-                        <ListItem>
-                          <ListItemAvatar>
-                            <Avatar alt="Remy Sharp" src={player.avatarUrl} />
-                          </ListItemAvatar>
-                          <ListItemText
-                            primary={player.username}
-                            secondary={
-                              <Stack direction="row" alignItems='center' spacing={1}>
-                                <Typography variant="caption" color="text.primary">
-                                  Tổng chip đã thắng: 
-                                </Typography>
-                                <Label color='warning' endIcon={<Iconify icon="material-symbols:poker-chip" />}>{player.profit}</Label>
-                              </Stack>
-                            }
-                          />
-                          <Iconify icon={icon} sx={{ height: iconSize, width: iconSize }} />
-                        </ListItem>
-                        {index !== top3Players.length - 1 && (
-                          <Divider variant="inset" component="li" />
-                        )}
-                      </Fragment>
-                    );
-                  })}
+                  {top3Players
+                    .sort((a, b) => b.profit - a.profit)
+                    .map((player, index) => {
+                      const icon =
+                        index === 0
+                          ? 'noto:1st-place-medal'
+                          : index === 1
+                            ? 'noto:2nd-place-medal'
+                            : 'noto:3rd-place-medal';
+                      const iconSize = index === 0 ? 48 : index === 1 ? 40 : 32;
+                      return (
+                        <Fragment key={index}>
+                          <ListItem>
+                            <ListItemAvatar>
+                              <Avatar alt="Remy Sharp" src={player.avatarUrl} />
+                            </ListItemAvatar>
+                            <ListItemText
+                              primary={player.username}
+                              secondary={
+                                <Stack direction="row" alignItems="center" spacing={1}>
+                                  <Typography variant="caption" color="text.primary">
+                                    Tổng chip đã thắng:
+                                  </Typography>
+                                  <Label
+                                    color="warning"
+                                    endIcon={<Iconify icon="material-symbols:poker-chip" />}
+                                  >
+                                    {player.profit}
+                                  </Label>
+                                </Stack>
+                              }
+                            />
+                            <Iconify icon={icon} sx={{ height: iconSize, width: iconSize }} />
+                          </ListItem>
+                          {index !== top3Players.length - 1 && (
+                            <Divider variant="inset" component="li" />
+                          )}
+                        </Fragment>
+                      );
+                    })}
                 </List>
               )}
               {isLoading && <Loader />}
