@@ -50,6 +50,7 @@ const HallOfFamePage = () => {
                 <List>
                   {top3Players
                     .sort((a, b) => b.profit - a.profit)
+                    .slice(0, 3)
                     .map((player, index) => {
                       const icon =
                         index === 0

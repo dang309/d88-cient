@@ -42,7 +42,7 @@ import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 
 const MIN_BET_AMOUNT = 1;
-const MAX_BET_AMOUNT = 70;
+const MAX_BET_AMOUNT = 55;
 
 const TAB = {
   HANDICAP: 0,
@@ -94,9 +94,7 @@ export default function BetDialog(props) {
 
   const validateBetAmount = (amount, balance = 0) => {
     let _err = '';
-    if (amount % 1 !== 0) {
-      _err = 'Tiền cược không được lẻ';
-    } else if (amount < MIN_BET_AMOUNT) {
+    if (amount < MIN_BET_AMOUNT) {
       _err = `Tiền cược tối thiểu ${MIN_BET_AMOUNT} chip`;
     } else if (amount > MAX_BET_AMOUNT) {
       _err = `Tiền cược tối đa là ${MAX_BET_AMOUNT} chip`;
@@ -127,16 +125,13 @@ export default function BetDialog(props) {
         return enqueueSnackbar(
           `Vui lòng chọn ${match?.firstTeamName} hoặc ${match?.secondTeamName}`,
           {
-            variant: 'error'
+            variant: 'error',
           }
         );
       if (tab === TAB.OVER_UNDER)
-        return enqueueSnackbar(
-          `Vui lòng chọn Tài hoặc Xỉu`,
-          {
-            variant: 'error'
-          }
-        );
+        return enqueueSnackbar(`Vui lòng chọn Tài hoặc Xỉu`, {
+          variant: 'error',
+        });
     }
 
     setErr('');
@@ -153,7 +148,7 @@ export default function BetDialog(props) {
       match: match.id,
       type: tab === TAB.HANDICAP ? 'handicap' : 'overUnder',
       value: betValue,
-      amount: betAmount,
+      amount: parseFloat(betAmount),
     };
 
     return BetAPI.create(newBet)
@@ -271,7 +266,9 @@ export default function BetDialog(props) {
                 dense
                 subheader={
                   <ListSubheader component="div" id="nested-list-subheader">
-                    <Label>{fRound(handicapThreshold)} trái</Label>
+                    <Stack alignItems="center" sx={{ pt: 2 }}>
+                      <Label>{fRound(handicapThreshold)} trái</Label>
+                    </Stack>
                   </ListSubheader>
                 }
               >
@@ -295,10 +292,16 @@ export default function BetDialog(props) {
                           alignItems="center"
                           spacing={downSm ? 0.5 : 1}
                         >
-                          <Iconify icon={`circle-flags:${firstTeamFlag}`} height={downSm ? 24 : 32} width={downSm ? 24 : 32} />
+                          <Iconify
+                            icon={`circle-flags:${firstTeamFlag}`}
+                            height={downSm ? 24 : 32}
+                            width={downSm ? 24 : 32}
+                          />
                           <Typography variant={downSm ? 'caption' : 'subtitle2'}>
                             {firstTeamName === topTeamName ? (
-                              <strong><mark>{firstTeamName}</mark></strong>
+                              <strong>
+                                <mark>{firstTeamName}</mark>
+                              </strong>
                             ) : (
                               firstTeamName
                             )}
@@ -322,12 +325,18 @@ export default function BetDialog(props) {
                         >
                           <Typography variant={downSm ? 'caption' : 'subtitle2'}>
                             {secondTeamName === topTeamName ? (
-                              <strong><mark>{secondTeamName}</mark></strong>
+                              <strong>
+                                <mark>{secondTeamName}</mark>
+                              </strong>
                             ) : (
                               secondTeamName
                             )}
                           </Typography>
-                          <Iconify icon={`circle-flags:${secondTeamFlag}`} height={downSm ? 24: 32} width={downSm ? 24: 32} />
+                          <Iconify
+                            icon={`circle-flags:${secondTeamFlag}`}
+                            height={downSm ? 24 : 32}
+                            width={downSm ? 24 : 32}
+                          />
                         </Stack>
                       </Stack>
                     </ToggleButton>
@@ -340,7 +349,9 @@ export default function BetDialog(props) {
               <List
                 subheader={
                   <ListSubheader component="div" id="nested-list-subheader">
-                    <Label>{fRound(overUnderThreshold)} trái</Label>
+                    <Stack alignItems="center" sx={{ pt: 2 }}>
+                      <Label>{fRound(overUnderThreshold)} trái</Label>
+                    </Stack>
                   </ListSubheader>
                 }
               >

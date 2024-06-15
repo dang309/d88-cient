@@ -46,7 +46,6 @@ export default function BetHistoryPage() {
     items: bets,
     isLoading,
     pagination,
-    mutate
   } = useData(
     user
       ? `/bets?${qs.stringify({
