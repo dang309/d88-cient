@@ -10,6 +10,7 @@ import useEventBus from 'src/hooks/event-bus';
 
 import BetDialog from 'src/components/@dialogs/bet';
 import RechargeDialog from 'src/components/@dialogs/recharge';
+import BetDetailDialog from 'src/components/@dialogs/bet-detail';
 import PredictionDialog from 'src/components/@dialogs/prediction';
 import ConfirmationDialog from 'src/components/@dialogs/confirmation';
 import AuthenticationDialog from 'src/components/@dialogs/authentication';
@@ -52,8 +53,7 @@ export default function DashboardLayout({ children }) {
     if (user && predictionResult) {
       if (predictionResult[0] && predictionResult[0].isRead) return;
       const idx = predictionResult.findIndex((item) => user && item.winner?.id === user.id);
-      if (idx > -1)
-        return $emit('@dialog.congratulation.action.open', { result: predictionResult[idx] });
+      if (idx > -1) return $emit('@dialog.congratulation.action.open', { result: predictionResult[idx] });
     }
   }, [predictionResult, user, $emit]);
 
@@ -84,6 +84,7 @@ export default function DashboardLayout({ children }) {
         <PredictionRuleDialog />
         <CongratulationDialog />
         <ConfirmationDialog />
+        <BetDetailDialog />
       </Box>
     </>
   );

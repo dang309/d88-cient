@@ -64,6 +64,8 @@ export default function BetDialog(props) {
   const [open, setOpen] = React.useState(false);
   const [tab, setTab] = React.useState(0);
   const [match, setMatch] = React.useState();
+  const [handicap, setHandicap] = React.useState({});
+  const [overUnder, setOverUnder] = React.useState({});
 
   const onChangeBetAmount = (newVal) => {
     if (!user) return $emit('@dialog.auth.action.open');
@@ -116,18 +118,14 @@ export default function BetDialog(props) {
     setTab(newTab);
   };
 
-  const onBet = (e) => {
-    e.preventDefault();
+  const onBet = () => {
     if (!user) return $emit('@dialog.auth.action.open');
 
     if (!betValue) {
       if (tab === TAB.HANDICAP)
-        return enqueueSnackbar(
-          `Vui lòng chọn ${match?.firstTeamName} hoặc ${match?.secondTeamName}`,
-          {
-            variant: 'error',
-          }
-        );
+        return enqueueSnackbar(`Vui lòng chọn ${match?.firstTeamName} hoặc ${match?.secondTeamName}`, {
+          variant: 'error',
+        });
       if (tab === TAB.OVER_UNDER)
         return enqueueSnackbar(`Vui lòng chọn Tài hoặc Xỉu`, {
           variant: 'error',
@@ -146,10 +144,17 @@ export default function BetDialog(props) {
     const newBet = {
       user: user.id,
       match: match.id,
-      type: tab === TAB.HANDICAP ? 'handicap' : 'overUnder',
       value: betValue,
       amount: parseFloat(betAmount),
     };
+
+    if (tab === TAB.HANDICAP) {
+      newBet.type = 'handicap';
+      newBet.handicap = handicap;
+    } else if (tab === TAB.OVER_UNDER) {
+      newBet.type = 'overUnder';
+      newBet.overUnder = overUnder;
+    }
 
     return BetAPI.create(newBet)
       .then(() => {
@@ -170,6 +175,14 @@ export default function BetDialog(props) {
       });
   };
 
+  const onOpenConfirmationDialog = (e) => {
+    e.preventDefault();
+
+    $emit('dialog.confirmation.action.open', {
+      callback: onBet,
+    });
+  };
+
   const onOpenRechargeDialog = () => $emit('@dialog.recharge.action.open');
 
   const onOpen = () => {
@@ -184,12 +197,28 @@ export default function BetDialog(props) {
 
   React.useEffect(() => {
     $on('@dialog.bet.action.open', (data) => {
-      setMatch(data?.match);
+      if (_.isNil(data) || _.isNil(data.match))
+        return enqueueSnackbar('Có lỗi xảy ra. Vui lòng reload lại trang!', {
+          variant: 'error',
+        });
+
+      const { handicap: lastestHandicap, overUnder: latestOverUnder } = data.match;
+
+      if (_.isNil(lastestHandicap) || _.isNil(latestOverUnder))
+        return enqueueSnackbar('Có lỗi xảy ra. Vui lòng reload lại trang!', {
+          variant: 'error',
+        });
+
+      setMatch(data.match);
+      setHandicap(lastestHandicap);
+      setOverUnder(latestOverUnder);
+
       if (tab === TAB.HANDICAP) setBetValue(data?.match?.firstTeamName);
       else if (tab === TAB.OVER_UNDER) setBetValue('over');
+
       onOpen();
     });
-  }, [$on, tab]);
+  }, [$on, enqueueSnackbar, tab, match]);
 
   React.useEffect(() => {
     if (window.confetti) {
@@ -203,22 +232,7 @@ export default function BetDialog(props) {
     };
   }, []);
 
-  if (_.isNil(match)) return null;
-
-  const {
-    firstTeamName,
-    firstTeamFlag,
-    secondTeamName,
-    secondTeamFlag,
-    topTeamName,
-    handicap,
-    overUnder,
-  } = match;
-
-  if (_.isNil(handicap) || _.isNil(overUnder)) return null;
-
-  const { threshold: handicapThreshold, firstTeamWinRate, secondTeamWinRate } = handicap;
-  const { threshold: overUnderThreshold, overWinRate, underWinRate } = overUnder;
+  if (_.isNil(match) || _.isNil(handicap) || _.isNil(overUnder)) return <div />;
 
   return (
     <Dialog
@@ -228,7 +242,7 @@ export default function BetDialog(props) {
       onClose={onClose}
       PaperProps={{
         component: 'form',
-        onSubmit: onBet,
+        onSubmit: onOpenConfirmationDialog,
         noValidate: true,
       }}
       disableScrollLock
@@ -267,7 +281,7 @@ export default function BetDialog(props) {
                 subheader={
                   <ListSubheader component="div" id="nested-list-subheader">
                     <Stack alignItems="center" sx={{ pt: 2 }}>
-                      <Label>{fRound(handicapThreshold)} trái</Label>
+                      <Label>{fRound(handicap.threshold)} trái</Label>
                     </Stack>
                   </ListSubheader>
                 }
@@ -280,60 +294,42 @@ export default function BetDialog(props) {
                     exclusive
                     fullWidth
                   >
-                    <ToggleButton value={firstTeamName}>
-                      <Stack
-                        direction="row"
-                        alignItems="center"
-                        justifyContent="space-between"
-                        sx={{ width: '100%' }}
-                      >
-                        <Stack
-                          direction={downSm ? 'column' : 'row'}
-                          alignItems="center"
-                          spacing={downSm ? 0.5 : 1}
-                        >
+                    <ToggleButton value={match.firstTeamName}>
+                      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ width: '100%' }}>
+                        <Stack direction={downSm ? 'column' : 'row'} alignItems="center" spacing={downSm ? 0.5 : 1}>
                           <Iconify
-                            icon={`circle-flags:${firstTeamFlag}`}
+                            icon={`circle-flags:${match.firstTeamFlag}`}
                             height={downSm ? 24 : 32}
                             width={downSm ? 24 : 32}
                           />
                           <Typography variant={downSm ? 'caption' : 'subtitle2'}>
-                            {firstTeamName === topTeamName ? (
+                            {match.firstTeamName === match.topTeamName ? (
                               <strong>
-                                <mark>{firstTeamName}</mark>
+                                <mark>{match.firstTeamName}</mark>
                               </strong>
                             ) : (
-                              firstTeamName
+                              match.firstTeamName
                             )}
                           </Typography>
                         </Stack>
-                        <Typography variant="caption">{fRound(firstTeamWinRate)}</Typography>
+                        <Typography variant="caption">{fRound(handicap.firstTeamWinRate)}</Typography>
                       </Stack>
                     </ToggleButton>
-                    <ToggleButton value={secondTeamName}>
-                      <Stack
-                        direction="row"
-                        alignItems="center"
-                        justifyContent="space-between"
-                        sx={{ width: '100%' }}
-                      >
-                        <Typography variant="caption">{fRound(secondTeamWinRate)}</Typography>
-                        <Stack
-                          direction={downSm ? 'column-reverse' : 'row'}
-                          alignItems="center"
-                          spacing={downSm ? 0.5 : 1}
-                        >
+                    <ToggleButton value={match.secondTeamName}>
+                      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ width: '100%' }}>
+                        <Typography variant="caption">{fRound(handicap.secondTeamWinRate)}</Typography>
+                        <Stack direction={downSm ? 'column-reverse' : 'row'} alignItems="center" spacing={downSm ? 0.5 : 1}>
                           <Typography variant={downSm ? 'caption' : 'subtitle2'}>
-                            {secondTeamName === topTeamName ? (
+                            {match.secondTeamName === match.topTeamName ? (
                               <strong>
-                                <mark>{secondTeamName}</mark>
+                                <mark>{match.secondTeamName}</mark>
                               </strong>
                             ) : (
-                              secondTeamName
+                              match.secondTeamName
                             )}
                           </Typography>
                           <Iconify
-                            icon={`circle-flags:${secondTeamFlag}`}
+                            icon={`circle-flags:${match.secondTeamFlag}`}
                             height={downSm ? 24 : 32}
                             width={downSm ? 24 : 32}
                           />
@@ -350,7 +346,7 @@ export default function BetDialog(props) {
                 subheader={
                   <ListSubheader component="div" id="nested-list-subheader">
                     <Stack alignItems="center" sx={{ pt: 2 }}>
-                      <Label>{fRound(overUnderThreshold)} trái</Label>
+                      <Label>{fRound(overUnder.threshold)} trái</Label>
                     </Stack>
                   </ListSubheader>
                 }
@@ -365,24 +361,14 @@ export default function BetDialog(props) {
                     fullWidth
                   >
                     <ToggleButton value="over">
-                      <Stack
-                        direction="row"
-                        justifyContent="space-between"
-                        alignItems="center"
-                        sx={{ width: '100%' }}
-                      >
+                      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ width: '100%' }}>
                         <Typography variant="subtitle1">Tài</Typography>
-                        <Typography variant="caption">{fRound(overWinRate)}</Typography>
+                        <Typography variant="caption">{fRound(overUnder.overWinRate)}</Typography>
                       </Stack>
                     </ToggleButton>
                     <ToggleButton value="under">
-                      <Stack
-                        direction="row"
-                        justifyContent="space-between"
-                        alignItems="center"
-                        sx={{ width: '100%' }}
-                      >
-                        <Typography variant="caption">{fRound(underWinRate)}</Typography>
+                      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ width: '100%' }}>
+                        <Typography variant="caption">{fRound(overUnder.underWinRate)}</Typography>
                         <Typography variant="subtitle1">Xỉu</Typography>
                       </Stack>
                     </ToggleButton>
@@ -400,9 +386,7 @@ export default function BetDialog(props) {
                     Số dư:{' '}
                   </Typography>
 
-                  <Label endIcon={<Iconify icon="material-symbols:poker-chip" />}>
-                    {fRound(user?.balance)}
-                  </Label>
+                  <Label endIcon={<Iconify icon="material-symbols:poker-chip" />}>{fRound(user?.balance)}</Label>
                 </Stack>
 
                 <Button
@@ -418,13 +402,7 @@ export default function BetDialog(props) {
             )}
           </Divider>
 
-          <Grid2
-            container
-            spacing={2}
-            justifyContent="space-evenly"
-            alignItems="center"
-            sx={{ pt: 2 }}
-          >
+          <Grid2 container spacing={2} justifyContent="space-evenly" alignItems="center" sx={{ pt: 2 }}>
             <Grid2 item lg={6} md={6} sm={10} xs={10}>
               <Slider
                 value={betAmount}

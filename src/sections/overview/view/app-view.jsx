@@ -1,6 +1,7 @@
 import qs from 'qs';
+import _ from 'lodash';
 import { useMeasure } from 'react-use';
-import { Fragment, useState, useEffect } from 'react';
+import { useMemo, Fragment } from 'react';
 
 import Container from '@mui/material/Container';
 import {
@@ -24,8 +25,6 @@ import useData from 'src/hooks/data';
 import useEventBus from 'src/hooks/event-bus';
 import { useResponsive } from 'src/hooks/use-responsive';
 
-import { MatchAPI } from 'src/api';
-
 import Label from 'src/components/label';
 import Scrollbar from 'src/components/scrollbar';
 import { Empty, Loader } from 'src/components/common';
@@ -43,20 +42,17 @@ export default function AppView() {
   const downSm = useResponsive('down', 'sm');
   const [ref, { height }] = useMeasure();
 
-  const [comingMatch, setComingMatch] = useState();
-
-  const loadComingMatch = () => {
-    MatchAPI.getComingMatch().then((res) => {
-      console.log(res?.data?.data);
-      setComingMatch(res?.data?.data);
-    });
-  };
+  const comingMatch = useMemo(() => {
+    if (_.isNil(matches)) return null;
+    if (_.isEmpty(Object.keys(matches))) return null;
+    if (_.isNil(matches[Object.keys(matches)[0]])) return null;
+    if (_.isNil(matches[Object.keys(matches)[0]][0])) return null;
+    return matches[Object.keys(matches)[0]][0];
+  }, [matches]);
 
   const onOpenBetDialog = (match) => $emit('@dialog.bet.action.open', { match });
 
-  useEffect(() => {
-    loadComingMatch();
-  }, []);
+  console.log({ comingMatch });
 
   return (
     <Container ref={ref} sx={{ maxHeight: '100%', pb: 2 }}>
@@ -105,9 +101,7 @@ export default function AppView() {
               </CardActions>
             </Card>
           )}
-          {!comingMatch && (
-            <Skeleton variant="rectangular" sx={{ width: '100%', height: height / 2 }} />
-          )}
+          {!comingMatch && <Skeleton variant="rectangular" sx={{ width: '100%', height: height / 2 }} />}
         </Grid>
         <Grid item lg={4} md={4} sm={12} xs={12}>
           <Card>
@@ -134,11 +128,7 @@ export default function AppView() {
                             matches[date].map((match) => (
                               <Fragment key={`match-${match.id}`}>
                                 <ListItemButton onClick={() => onOpenBetDialog(match)}>
-                                  <ListItemText
-                                    primary={
-                                      <MatchVersus match={match} showTime justifyContent="start" />
-                                    }
-                                  />
+                                  <ListItemText primary={<MatchVersus match={match} showTime justifyContent="start" />} />
                                 </ListItemButton>
                                 <Divider />
                               </Fragment>

@@ -1,41 +1,22 @@
 import _ from 'lodash';
-import moment from 'moment';
-import { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { useSWRConfig } from 'swr';
-import { useSnackbar } from 'notistack';
 
-import { Stack, Button } from '@mui/material';
+import { Stack } from '@mui/material';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import Typography from '@mui/material/Typography';
 
-import useAuth from 'src/hooks/auth';
 import useEventBus from 'src/hooks/event-bus';
-
-import { BetAPI } from 'src/api';
 
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
-import { MatchVersus } from 'src/components/match-versus';
 
 // ----------------------------------------------------------------------
 
 export default function MyTableRow({ row }) {
   const { match, value, amount, type, profit, loss, winOrLoseType } = row;
 
-  const {mutate} = useSWRConfig()
-  const {initialize} = useAuth()
   const { $emit } = useEventBus();
-  const { enqueueSnackbar } = useSnackbar();
-
-  const betFormula = useMemo(() => {
-    if (_.isNil(winOrLoseType)) return '';
-    if (winOrLoseType === 'winFull') return `Số chip đã đặt * tỉ lệ cược`;
-    if (winOrLoseType === 'winHalf') return `(Số chip đã đặt * tỉ lệ cược) / 2`;
-    if (winOrLoseType === 'loseFull') return `Mất toàn bộ tiền cược`;
-    if (winOrLoseType === 'loseHalf') return `Số chip đã đặt / 2`;
-  }, [winOrLoseType]);
 
   const getResultType = (_winOrLoseType) => {
     let result = '';
@@ -49,50 +30,52 @@ export default function MyTableRow({ row }) {
     return result;
   };
 
-  const onDeleteBet = () =>
-    BetAPI.delete(row.id).then(() =>
-      enqueueSnackbar('Hủy thành công!', {
-        variant: 'success',
-      })
-    ).then(() => {
-      initialize()
-      mutate(key => typeof key === 'string' && key.startsWith('/bets'))
-    });
-
-  const onCancelBet = () =>
-    $emit('dialog.confirmation.action.open', {
-      callback: onDeleteBet,
-    });
+  const onOpenBetDetail = () => $emit('@dialog.bet-detail.action.open', { bet: row });
 
   return (
-    <TableRow hover tabIndex={-1} disabled>
+    <TableRow hover tabIndex={-1} disabled onClick={onOpenBetDetail}>
       <TableCell>
-        <MatchVersus match={match} showResult />
+        <Stack direction="row" alignItems="center" justifyContent="space-between">
+          <Stack spacing={1}>
+            <Typography variant="caption">
+              {match.firstTeamName === match.topTeamName ? (
+                <mark>
+                  <strong>{match.firstTeamName}</strong>
+                </mark>
+              ) : (
+                match.firstTeamName
+              )}
+            </Typography>
+            <Typography variant="caption">
+              {' '}
+              {match.secondTeamName === match.topTeamName ? (
+                <mark>
+                  <strong>{match.secondTeamName}</strong>
+                </mark>
+              ) : (
+                match.secondTeamName
+              )}
+            </Typography>
+          </Stack>
+          <Stack spacing={1}>
+            <Typography variant="caption">{match?.result?.firstTeamScore ?? '-'}</Typography>
+            <Typography variant="caption">{match?.result?.secondTeamScore ?? '-'}</Typography>
+          </Stack>
+        </Stack>
       </TableCell>
 
       <TableCell>
-        <Label startIcon={<Iconify icon="mingcute:calendar-2-line" />}>
-          {moment(match?.datetime).format('DD/MM HH:mm')}
-        </Label>
+        <Label color={type === 'handicap' ? 'primary' : 'secondary'}>{type === 'handicap' ? 'Chấp' : 'Tài/Xỉu'}</Label>
       </TableCell>
 
       <TableCell>
-        <Label color={type === 'handicap' ? 'primary' : 'secondary'}>
-          {type === 'handicap' ? 'Chấp' : 'Tài/Xỉu'}
-        </Label>
-      </TableCell>
-
-      <TableCell>
-        <Typography variant="subtitle2">
-          {type === 'handicap' ? value : value === 'over' ? 'Tài' : 'Xỉu'}
-        </Typography>
+        <Typography variant="subtitle2">{type === 'handicap' ? value : value === 'over' ? 'Tài' : 'Xỉu'}</Typography>
       </TableCell>
 
       <TableCell>{amount}</TableCell>
       <TableCell>
         <Stack alignItems="center" spacing={1}>
           {getResultType(winOrLoseType)}
-          {winOrLoseType && <Typography variant="caption">{betFormula}</Typography>}
         </Stack>
       </TableCell>
       <TableCell>
@@ -113,17 +96,6 @@ export default function MyTableRow({ row }) {
             - {loss}
           </Label>
         )}
-      </TableCell>
-      <TableCell>
-        <Button
-          variant="contained"
-          color="error"
-          size="small"
-          disabled={moment().isSameOrAfter(moment(match?.datetime)) || winOrLoseType}
-          onClick={onCancelBet}
-        >
-          Hủy
-        </Button>
       </TableCell>
     </TableRow>
   );

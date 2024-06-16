@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 
 import Box from '@mui/material/Box';
+import { Typography } from '@mui/material';
 import TableRow from '@mui/material/TableRow';
 import TableHead from '@mui/material/TableHead';
 import TableCell from '@mui/material/TableCell';
@@ -10,15 +11,7 @@ import { visuallyHidden } from './utils';
 
 // ----------------------------------------------------------------------
 
-export default function MyTableHead({
-  order,
-  orderBy,
-  rowCount,
-  headLabel,
-  numSelected,
-  onRequestSort,
-  onSelectAllClick,
-}) {
+export default function MyTableHead({ order, orderBy, rowCount, headLabel, numSelected, onRequestSort, onSelectAllClick }) {
   const onSort = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -39,11 +32,9 @@ export default function MyTableHead({
               direction={orderBy === headCell.id ? order : 'asc'}
               onClick={onSort(headCell.id)}
             >
-              {headCell.label}
+              <Typography variant="caption"> {headCell.label}</Typography>
               {orderBy === headCell.id ? (
-                <Box sx={{ ...visuallyHidden }}>
-                  {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                </Box>
+                <Box sx={{ ...visuallyHidden }}>{order === 'desc' ? 'sorted descending' : 'sorted ascending'}</Box>
               ) : null}
             </TableSortLabel>
           </TableCell>

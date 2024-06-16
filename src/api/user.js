@@ -1,7 +1,7 @@
-import request from "src/utils/request";
+import request from 'src/utils/request';
 
 class UserAPI {
-  static endPoint = "/users";
+  static endPoint = '/users';
 
   static async getOne(id) {
     return request.get(`${UserAPI.endPoint}/${id}`);
@@ -9,6 +9,14 @@ class UserAPI {
 
   static async me(query) {
     return request.get(`${UserAPI.endPoint}/me?${query}`);
+  }
+
+  static async count() {
+    return request.get(`${UserAPI.endPoint}/count`);
+  }
+
+  static async getSumBalance() {
+    return request.get(`${UserAPI.endPoint}/sum-balance`);
   }
 
   static async create(body) {

@@ -32,10 +32,7 @@ export default function Header({ onOpenNav }) {
   const { user } = useAuth();
   const { $emit } = useEventBus();
   const location = useLocation();
-  const [shouldShowMiniGameAlert, setShouldShowMiniGameAlert] = useLocalStorage(
-    'shouldShowMiniGameAlert',
-    true
-  );
+  const [shouldShowMiniGameAlert, setShouldShowMiniGameAlert] = useLocalStorage('shouldShowMiniGameAlert', true);
 
   const downLg = useResponsive('down', 'lg');
 
@@ -109,7 +106,7 @@ export default function Header({ onOpenNav }) {
             <AccountPopover />
           </>
         ) : (
-          <Button variant="contained" onClick={onOpenAuthDialog}>
+          <Button variant="contained" onClick={onOpenAuthDialog} size={downLg ? 'small' : 'medium'}>
             Đăng nhập
           </Button>
         )}
@@ -183,8 +180,7 @@ export default function Header({ onOpenNav }) {
             justifyContent: 'space-between',
             flexShrink: 0,
             borderRadius: '999px',
-            bgcolor:
-              theme.palette.mode === 'light' ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)',
+            bgcolor: theme.palette.mode === 'light' ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)',
             backdropFilter: 'blur(24px)',
             border: '1px solid',
             borderColor: 'divider',

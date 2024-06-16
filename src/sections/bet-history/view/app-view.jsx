@@ -22,10 +22,9 @@ import MyTableNoData from '../components/my-table-no-data';
 
 const HEAD_LABELS = [
   { id: 'match', label: 'Trận', align: 'center' },
-  { id: 'datetime', label: 'Thời gian' },
   { id: 'betType', label: 'Kèo' },
   { id: 'betValue', label: 'Đã đặt' },
-  { id: 'betAmount', label: 'Số chip đã đặt' },
+  { id: 'betAmount', label: 'Tiền cược' },
   { id: 'result', label: 'Kết quả', align: 'center' },
   { id: 'profitOrLoss', label: 'Thắng/ Thua' },
   { id: 'action', label: '' },
@@ -53,6 +52,8 @@ export default function BetHistoryPage() {
             match: {
               populate: ['result'],
             },
+            handicap: true,
+            overUnder: true,
           },
           sort: ['createdAt:desc'],
           pagination: {
