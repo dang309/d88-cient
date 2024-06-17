@@ -82,6 +82,9 @@ export default function AppView() {
       .then(() => mutate())
       .then(() => {
         initialize();
+      })
+      .then(() => {
+        loadJackpot();
       });
 
   const onOpenConfirmationDialog = (predictionId) =>
