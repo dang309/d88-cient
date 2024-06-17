@@ -27,7 +27,7 @@ export default function Router() {
         { element: <IndexPage />, index: true },
         { path: 'bet-history', element: <BetHistoryPage /> },
         { path: 'transaction-history', element: <TransactionHistoryPage /> },
-        { path: 'mini-game', element: <MiniGamePage /> },
+        // { path: 'mini-game', element: <MiniGamePage /> },
         { path: 'hall-of-fame', element: <HallOfFamePage /> },
         { path: 'admin', element: <AdminPage /> },
       ],
