@@ -1,5 +1,5 @@
 // utils
-import qs from 'qs'
+import qs from 'qs';
 import Cookies from 'js-cookie';
 import PropTypes from 'prop-types';
 import { useMemo, useEffect, useReducer, createContext } from 'react';
@@ -60,8 +60,7 @@ const handlers = {
   }),
 };
 
-const reducer = (state, action) =>
-  handlers[action.type] ? handlers[action.type](state, action) : state;
+const reducer = (state, action) => (handlers[action.type] ? handlers[action.type](state, action) : state);
 
 const AuthContext = createContext({
   ...initialState,
@@ -157,8 +156,9 @@ const AuthProvider = ({ children }) => {
         setSession(jwt);
 
         const query = {
-          fields: ['id', 'username', 'email', 'avatarUrl', 'balance']
-        }
+          fields: ['id', 'username', 'email', 'avatarUrl', 'balance'],
+          populate: ['setting'],
+        };
 
         const res = await UserAPI.me(qs.stringify(query));
         const user = res.data;

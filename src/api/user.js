@@ -24,7 +24,7 @@ class UserAPI {
   }
 
   static async update(id, body) {
-    return request.patch(`${UserAPI.endPoint}/${id}`, body);
+    return request.put(`${UserAPI.endPoint}/${id}`, body);
   }
 
   static async delete(id) {

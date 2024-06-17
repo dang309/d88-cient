@@ -1,16 +1,13 @@
-import qs from 'qs';
 import _ from 'lodash';
+import { useSnackbar } from 'notistack';
 import { useState, Fragment, useEffect } from 'react';
 import { motion, stagger, useAnimate } from 'framer-motion';
 
-import { grey } from '@mui/material/colors';
 import Container from '@mui/material/Container';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import {
-  Tab,
   List,
   Card,
-  Tabs,
   Stack,
   Paper,
   Avatar,
@@ -32,7 +29,7 @@ import useEventBus from 'src/hooks/event-bus';
 
 import request from 'src/utils/request';
 
-import { MatchAPI } from 'src/api';
+import { MatchAPI, PredictionAPI } from 'src/api';
 
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
@@ -44,37 +41,17 @@ import { MatchVersus } from 'src/components/match-versus';
 export default function AppView() {
   const { $emit } = useEventBus();
   const [scope, animate] = useAnimate();
-  const { user } = useAuth();
+  const { user, initialize } = useAuth();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [match, setMatch] = useState();
   const [jackpot, setJackpot] = useState(0);
-  const [tab, setTab] = useState(0);
 
-  const { items: predictions, isLoading: isLoadingPrediction } = useData(
-    match && user ? `/predictions?populate=*&filters[match][id][$eq]=${match.id}` : null
-  );
-
-  const { items: predictionResults, isLoading: isLoadingPredictionResult } = useData(
-    match && user
-      ? `/prediction-results?${qs.stringify({
-          fields: ['prize', 'isRead'],
-          populate: {
-            winner: {
-              fields: ['id', 'username', 'avatarUrl'],
-            },
-            match: {
-              fields: ['id', 'firstTeamName', 'firstTeamFlag', 'secondTeamName', 'secondTeamFlag'],
-              populate: {
-                result: true,
-              },
-              filters: {
-                id: match.id,
-              },
-            },
-          },
-        })}`
-      : null
-  );
+  const {
+    items: predictions,
+    isLoading: isLoadingPrediction,
+    mutate,
+  } = useData(match && user ? `/predictions?populate=*&filters[match][id][$eq]=${match.id}&sort=createdAt:desc` : null);
 
   const loadJackpot = () => {
     request.get('/jackpot').then((res) => {
@@ -89,16 +66,30 @@ export default function AppView() {
       return $emit('@dialog.auth.action.open');
     }
     $emit('@dialog.prediction.action.open', { match, callback: loadJackpot });
-    setTab(0);
   };
 
   const onOpenMiniGameRuleDialog = () => {
     $emit('@dialog.prediction-rules.action.open');
   };
 
-  const onChangeTab = (_e, newTab) => {
-    setTab(newTab);
-  };
+  const onDeletePrection = (predictionId) =>
+    PredictionAPI.delete(predictionId)
+      .then(() =>
+        enqueueSnackbar('Hủy thành công!', {
+          variant: 'success',
+        })
+      )
+      .then(() => mutate())
+      .then(() => {
+        initialize();
+      });
+
+  const onOpenConfirmationDialog = (predictionId) =>
+    $emit('dialog.confirmation.action.open', {
+      callback: () => {
+        onDeletePrection(predictionId);
+      },
+    });
 
   useEffect(() => {
     const loadComingMatch = () => {
@@ -209,127 +200,65 @@ export default function AppView() {
 
         <Grid2 item lg={6} md={6} sm={12} xs={12}>
           <Card>
-            <CardHeader
-              sx={{ p: 0, borderBottom: `1px dashed ${grey[200]}` }}
-              title={
-                <Tabs value={tab} onChange={onChangeTab} centered textColor="secondary" indicatorColor="secondary">
-                  <Tab label="Danh sách dự đoán" />
-                  <Tab label="Kẻ chiến thắng" />
-                </Tabs>
-              }
-            />
+            <CardHeader title="Danh sách dự đoán" />
             <CardContent>
-              {tab === 0 && (
-                <List disablePadding>
-                  {predictions &&
-                    predictions.map((prediction, index) => (
-                      <Fragment key={prediction.id}>
-                        <ListItem alignItems="flex-start">
-                          <ListItemAvatar>
-                            <Avatar alt={prediction?.user?.username} src={prediction?.user?.avatarUrl} />
-                          </ListItemAvatar>
-                          <ListItemText
-                            primary={
-                              <Stack direction="row" alignItems="center" spacing={0.7}>
-                                <Typography variant="subtitle2">{prediction?.user?.username}</Typography>
-                                <Typography variant="caption">đã dự đoán</Typography>
-                              </Stack>
-                            }
-                            secondary={
-                              <Grid2 container justifyContent="flex-start" alignItems="center" spacing={1}>
-                                <Grid2 item lg="auto" md="auto" sm="auto" xs="auto">
-                                  <Stack alignItems="center">
-                                    <Iconify icon={`circle-flags:${prediction?.match?.firstTeamFlag}`} height={20} width={20} />
-                                  </Stack>
-                                </Grid2>
-
-                                <Grid2 item lg="auto" md="auto" sm="auto" xs="auto">
-                                  <Stack direction="row" alignItems="center" spacing={1}>
-                                    <Label>{prediction?.firstTeamScore || 0}</Label>
-                                    <Typography>:</Typography>
-                                    <Label>{prediction?.secondTeamScore || 0}</Label>
-                                  </Stack>
-                                </Grid2>
-
-                                <Grid2 item lg="auto" md="auto" sm="auto" xs="auto">
-                                  <Stack alignItems="center">
-                                    <Iconify
-                                      icon={`circle-flags:${prediction?.match?.secondTeamFlag}`}
-                                      height={20}
-                                      width={20}
-                                    />
-                                  </Stack>
-                                </Grid2>
+              <List disablePadding>
+                {predictions &&
+                  predictions.map((prediction, index) => (
+                    <Fragment key={prediction.id}>
+                      <ListItem alignItems="flex-start">
+                        <ListItemAvatar>
+                          <Avatar alt={prediction?.user?.username} src={prediction?.user?.avatarUrl} />
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={
+                            <Stack direction="row" alignItems="center" spacing={0.7}>
+                              <Typography variant="subtitle2">{prediction?.user?.username}</Typography>
+                              <Typography variant="caption">đã dự đoán</Typography>
+                            </Stack>
+                          }
+                          secondary={
+                            <Grid2 container justifyContent="flex-start" alignItems="center" spacing={1}>
+                              <Grid2 item lg="auto" md="auto" sm="auto" xs="auto">
+                                <Stack alignItems="center">
+                                  <Iconify icon={`circle-flags:${prediction?.match?.firstTeamFlag}`} height={20} width={20} />
+                                </Stack>
                               </Grid2>
-                            }
-                          />
-                        </ListItem>
-                        {index !== predictions.length - 1 && <Divider variant="inset" />}
-                      </Fragment>
-                    ))}
 
-                  {isLoadingPrediction && <Loader />}
-
-                  {!isLoadingPrediction && !predictions?.length && <Empty text="Chưa có dự đoán" />}
-                </List>
-              )}
-
-              {tab === 1 && (
-                <List disablePadding>
-                  {predictionResults &&
-                    predictionResults.map((prediction, index) => (
-                      <Fragment key={prediction.id}>
-                        <ListItem alignItems="center">
-                          <ListItemAvatar>
-                            <Avatar alt={prediction?.winner?.username} src={prediction?.winner?.avatarUrl} />
-                          </ListItemAvatar>
-                          <ListItemText
-                            primary={
-                              <Stack direction="row" alignItems="center" spacing={0.7}>
-                                <Typography variant="subtitle2">{prediction?.winner?.username}</Typography>
-                              </Stack>
-                            }
-                            secondary={
-                              <Grid2 container justifyContent="flex-start" alignItems="center" spacing={1}>
-                                <Grid2 item lg="auto" md="auto" sm="auto" xs="auto">
-                                  <Stack alignItems="center">
-                                    <Iconify icon={`circle-flags:${prediction?.match?.firstTeamFlag}`} height={20} width={20} />
-                                  </Stack>
-                                </Grid2>
-
-                                <Grid2 item lg="auto" md="auto" sm="auto" xs="auto">
-                                  <Stack direction="row" alignItems="center" spacing={1}>
-                                    <Label>{prediction?.match?.result?.firstTeamScore || 0}</Label>
-                                    <Typography>:</Typography>
-                                    <Label>{prediction?.match?.result?.secondTeamScore || 0}</Label>
-                                  </Stack>
-                                </Grid2>
-
-                                <Grid2 item lg="auto" md="auto" sm="auto" xs="auto">
-                                  <Stack alignItems="center">
-                                    <Iconify
-                                      icon={`circle-flags:${prediction?.match?.secondTeamFlag}`}
-                                      height={20}
-                                      width={20}
-                                    />
-                                  </Stack>
-                                </Grid2>
+                              <Grid2 item lg="auto" md="auto" sm="auto" xs="auto">
+                                <Stack direction="row" alignItems="center" spacing={1}>
+                                  <Label>{prediction?.firstTeamScore || 0}</Label>
+                                  <Typography>:</Typography>
+                                  <Label>{prediction?.secondTeamScore || 0}</Label>
+                                </Stack>
                               </Grid2>
-                            }
-                          />
-                          <Label color="warning" endIcon={<Iconify icon="material-symbols:poker-chip" />}>
-                            + {prediction.prize}
-                          </Label>
-                        </ListItem>
-                        {index !== predictionResults.length - 1 && <Divider variant="inset" />}
-                      </Fragment>
-                    ))}
 
-                  {isLoadingPredictionResult && <Loader />}
+                              <Grid2 item lg="auto" md="auto" sm="auto" xs="auto">
+                                <Stack alignItems="center">
+                                  <Iconify icon={`circle-flags:${prediction?.match?.secondTeamFlag}`} height={20} width={20} />
+                                </Stack>
+                              </Grid2>
+                            </Grid2>
+                          }
+                        />
+                        <Button
+                          variant="contained"
+                          color="error"
+                          size="small"
+                          sx={{ alignSelf: 'center' }}
+                          onClick={() => onOpenConfirmationDialog(prediction.id)}
+                        >
+                          Hủy
+                        </Button>
+                      </ListItem>
+                      {index !== predictions.length - 1 && <Divider variant="inset" />}
+                    </Fragment>
+                  ))}
 
-                  {!isLoadingPredictionResult && !predictionResults?.length && <Empty text="Chưa có dữ liệu" />}
-                </List>
-              )}
+                {isLoadingPrediction && <Loader />}
+
+                {!isLoadingPrediction && !predictions?.length && <Empty text="Chưa có dự đoán" />}
+              </List>
             </CardContent>
           </Card>
         </Grid2>

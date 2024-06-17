@@ -1,11 +1,12 @@
 import qs from 'qs';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 
-import useData from 'src/hooks/data';
 import useAuth from 'src/hooks/auth';
+import useData from 'src/hooks/data';
 import useEventBus from 'src/hooks/event-bus';
 
 import BetDialog from 'src/components/@dialogs/bet';
@@ -26,10 +27,21 @@ import Header from './header';
 export default function DashboardLayout({ children }) {
   const { user } = useAuth();
   const { $emit } = useEventBus();
-  const { items: predictionResult } = useData(
+
+  const { items: predictions, mutate } = useData(
     user &&
-      `/prediction-results?${qs.stringify({
-        fields: ['prize', 'isRead'],
+      `/predictions?${qs.stringify({
+        fields: ['prize', 'isCorrect'],
+        filters: {
+          $and: [
+            {
+              isCorrect: true,
+            },
+            {
+              isCelebrated: false,
+            },
+          ],
+        },
         populate: {
           winner: {
             fields: ['id'],
@@ -50,12 +62,9 @@ export default function DashboardLayout({ children }) {
   const [openNav, setOpenNav] = useState(false);
 
   const onCheckPredictionWinner = useCallback(() => {
-    if (user && predictionResult) {
-      if (predictionResult[0] && predictionResult[0].isRead) return;
-      const idx = predictionResult.findIndex((item) => user && item.winner?.id === user.id);
-      if (idx > -1) return $emit('@dialog.congratulation.action.open', { result: predictionResult[idx] });
-    }
-  }, [predictionResult, user, $emit]);
+    if (_.isNil(predictions) || _.isEmpty(predictions)) return;
+    return $emit('@dialog.congratulation.action.open', { predictions, mutate });
+  }, [predictions, mutate, $emit]);
 
   useEffect(() => {
     onCheckPredictionWinner();

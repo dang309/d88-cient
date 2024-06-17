@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import * as React from 'react';
-import { useSWRConfig } from 'swr';
 
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -9,7 +8,7 @@ import { Stack, Typography, IconButton } from '@mui/material';
 
 import useEventBus from 'src/hooks/event-bus';
 
-import { PredictionResultAPI } from 'src/api';
+import { PredictionAPI } from 'src/api';
 
 import Label from '../label';
 import Iconify from '../iconify';
@@ -17,33 +16,45 @@ import { MatchVersus } from '../match-versus';
 
 export default function CongratulationDialog() {
   const { $on } = useEventBus();
-  const { mutate } = useSWRConfig();
 
   const [open, setOpen] = React.useState(false);
-  const [result, setResult] = React.useState();
+  const [predictions, setPredictions] = React.useState();
+
+  const totalPrize = React.useMemo(() => {
+    if (_.isNil(predictions) || _.isEmpty(predictions)) return 0;
+
+    return predictions.reduce((sum, prediction) => sum + prediction.prize, 0);
+  }, [predictions]);
 
   const onOpen = () => {
     setOpen(true);
   };
 
-  const onClose = () => {
-    if (result.id) {
-      PredictionResultAPI.update(result.id, { isRead: true })
-        .then(() => {
-          mutate((key) => typeof key === 'string' && key.startsWith('/prediction-results'));
+  const onClose = async () => {
+    if (_.isNil(predictions)) return;
+
+    const promises = [];
+
+    predictions.forEach((prediction) => {
+      promises.push(
+        PredictionAPI.update(prediction.id, {
+          isCelebrated: true,
         })
-        .finally(() => {
-          setOpen(false);
-        });
-    }
+      );
+    });
+
+    return Promise.all(promises).then(() => {
+      setOpen(false);
+    });
   };
 
   React.useEffect(() => {
     $on('@dialog.congratulation.action.open', (data) => {
-      setResult(_.get(data, 'result'));
+      if (_.isNil(data) || _.isNil(data.predictions)) return;
+      setPredictions(data.predictions);
       onOpen();
     });
-  }, [$on]);
+  }, [$on, predictions]);
 
   React.useEffect(() => {
     if (!window.confetti || !open) return;
@@ -107,18 +118,21 @@ export default function CongratulationDialog() {
       <DialogContent>
         <Stack alignItems="center" spacing={1}>
           <Typography variant="subtitle1">Bạn đã dự đoán đúng tỉ số trận đấu</Typography>
-          <MatchVersus
-            match={result?.match}
-            showResult
-            sx={{
-              spacing: 4,
-            }}
-          />
+          {predictions &&
+            predictions.map((prediction) => (
+              <MatchVersus
+                match={prediction?.match}
+                showResult
+                sx={{
+                  spacing: 4,
+                }}
+              />
+            ))}
         </Stack>
 
         <Stack alignItems="center">
           <Label color="warning" endIcon={<Iconify icon="material-symbols:poker-chip" />}>
-            + {result?.prize || 0}
+            + {totalPrize}
           </Label>
         </Stack>
       </DialogContent>

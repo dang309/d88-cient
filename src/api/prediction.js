@@ -8,6 +8,16 @@ class PredictionAPI {
       data,
     });
   }
+
+  static async update(id, data) {
+    return request.put(`${PredictionAPI.endPoint}/${id}`, {
+      data,
+    });
+  }
+
+  static async delete(id) {
+    return request.delete(`${PredictionAPI.endPoint}/${id}`);
+  }
 }
 
 export default PredictionAPI;

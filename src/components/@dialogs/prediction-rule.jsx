@@ -9,7 +9,6 @@ import DialogContent from '@mui/material/DialogContent';
 
 import useEventBus from 'src/hooks/event-bus';
 
-
 export default function PredictionRuleDialog() {
   const { $on } = useEventBus();
 
@@ -30,12 +29,7 @@ export default function PredictionRuleDialog() {
   }, [$on]);
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      aria-labelledby="alert-dialog-title"
-      aria-describedby="alert-dialog-description"
-    >
+    <Dialog open={open} onClose={onClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
       <DialogTitle id="alert-dialog-title">Luật chơi</DialogTitle>
       <DialogContent>
         <Stack spacing={1}>
@@ -44,21 +38,14 @@ export default function PredictionRuleDialog() {
           </Alert>
 
           <Alert severity="info">
-            Nếu không có ai đoán đúng thì toàn bộ số chip trong <strong>Jackpot</strong> sẽ
-            được tích lũy cho trận đấu kế tiếp.
+            Nếu không có ai đoán đúng thì toàn bộ số chip trong <strong>Jackpot</strong> sẽ được tích lũy cho trận đấu kế tiếp.
           </Alert>
 
-          <Alert severity="warning">
-            Người chơi có thể dự đoán nhiều tỉ số trong 1 trận đấu.
-          </Alert>
-
-          <Alert severity='error'>
-            Nếu dự đoán sai thì người chơi sẽ mất phí tham gia là 1 chip.
-          </Alert>
+          <Alert severity="error">Nếu dự đoán sai thì người chơi sẽ mất phí tham gia là 1 chip.</Alert>
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} autoFocus fullWidth variant='contained'>
+        <Button onClick={onClose} autoFocus fullWidth variant="contained">
           Tôi đã hiểu
         </Button>
       </DialogActions>
