@@ -26,6 +26,7 @@ export default function PredictionDialog() {
   const { enqueueSnackbar } = useSnackbar();
   const { mutate } = useSWRConfig();
   const downSm = useResponsive('down', 'sm');
+  const callbackRef = React.useRef(null);
 
   const [match, setMatch] = React.useState();
   const [open, setOpen] = React.useState(false);
@@ -63,14 +64,12 @@ export default function PredictionDialog() {
   const explodeConfetti = async () => {
     if (_.isNil(window.confetti)) return;
     const count = 200;
-      const defaults = {
-        origin: { y: 0.7 },
-      };
+    const defaults = {
+      origin: { y: 0.7 },
+    };
 
     function fire(particleRatio, opts) {
-      window.confetti(
-        { ...defaults, ...opts, particleCount: Math.floor(count * particleRatio),}
-      );
+      window.confetti({ ...defaults, ...opts, particleCount: Math.floor(count * particleRatio) });
     }
 
     fire(0.25, {
@@ -102,9 +101,7 @@ export default function PredictionDialog() {
   };
 
   const onPredict = async () => {
-    if (_.isNil(user)) {
-      return $emit('@dialog.auth.action.open');
-    }
+    if (_.isNil(user)) return $emit('@dialog.auth.action.open');
     if (match && user) {
       const dataToSend = {
         match: match.id,
@@ -122,6 +119,7 @@ export default function PredictionDialog() {
         mutate((key) => typeof key === 'string' && key.startsWith('/predictions'), undefined, {
           revalidate: true,
         });
+        if (callbackRef.current) callbackRef.current();
       });
     }
   };
@@ -129,6 +127,7 @@ export default function PredictionDialog() {
   React.useEffect(() => {
     $on('@dialog.prediction.action.open', (data) => {
       setMatch(_.get(data, 'match'));
+      if (data.callback) callbackRef.current = data.callback;
       onOpen();
     });
   }, [$on, mutate]);
@@ -156,9 +155,7 @@ export default function PredictionDialog() {
         </IconButton>
       </DialogTitle>
       <DialogContent>
-        <DialogContentText id="alert-dialog-description">
-          Lệ phí tham gia là 1 chip
-        </DialogContentText>
+        <DialogContentText id="alert-dialog-description">Lệ phí tham gia là 1 chip</DialogContentText>
 
         {match && (
           <Grid2
@@ -175,10 +172,7 @@ export default function PredictionDialog() {
               <Stack direction="row" justifyContent="flex-end" spacing={1}>
                 <Stack alignItems="center" justifyContent="center">
                   <Iconify icon={`circle-flags:${match.firstTeamFlag}`} height={32} width={32} />
-                  <Typography
-                    variant={downSm ? 'caption' : 'subtitle2'}
-                    sx={{ textAlign: 'center' }}
-                  >
+                  <Typography variant={downSm ? 'caption' : 'subtitle2'} sx={{ textAlign: 'center' }}>
                     {match?.topTeamName === match?.firstTeamName ? (
                       <mark>
                         <strong>{match?.firstTeamName}</strong>
@@ -190,10 +184,7 @@ export default function PredictionDialog() {
                 </Stack>
                 <Stack>
                   <Stack alignItems="center">
-                    <IconButton
-                      size="small"
-                      onClick={() => onChangeFirstTeamScorePrediction('plus')}
-                    >
+                    <IconButton size="small" onClick={() => onChangeFirstTeamScorePrediction('plus')}>
                       <Iconify icon="line-md:arrow-small-up" sx={{ width: 20, height: 20 }} />
                     </IconButton>
                   </Stack>
@@ -201,10 +192,7 @@ export default function PredictionDialog() {
                     {firstTeamScorePrediction}
                   </Button>
                   <Stack alignItems="center">
-                    <IconButton
-                      size="small"
-                      onClick={() => onChangeFirstTeamScorePrediction('minus')}
-                    >
+                    <IconButton size="small" onClick={() => onChangeFirstTeamScorePrediction('minus')}>
                       <Iconify icon="line-md:arrow-small-down" />
                     </IconButton>
                   </Stack>
@@ -221,10 +209,7 @@ export default function PredictionDialog() {
             <Grid2 item lg={4} xs sx={{ p: 0 }}>
               <Stack direction="row" justifyContent="flex-start" spacing={1}>
                 <Stack>
-                  <Stack
-                    alignItems="center"
-                    onClick={() => onChangeSecondTeamScorePrediction('plus')}
-                  >
+                  <Stack alignItems="center" onClick={() => onChangeSecondTeamScorePrediction('plus')}>
                     <IconButton size="small">
                       <Iconify icon="line-md:arrow-small-up" sx={{ width: 20, height: 20 }} />
                     </IconButton>
@@ -233,20 +218,14 @@ export default function PredictionDialog() {
                     {secondTeamScorePrediction}
                   </Button>
                   <Stack alignItems="center">
-                    <IconButton
-                      size="small"
-                      onClick={() => onChangeSecondTeamScorePrediction('minus')}
-                    >
+                    <IconButton size="small" onClick={() => onChangeSecondTeamScorePrediction('minus')}>
                       <Iconify icon="line-md:arrow-small-down" />
                     </IconButton>
                   </Stack>
                 </Stack>
                 <Stack alignItems="center" justifyContent="center">
                   <Iconify icon={`circle-flags:${match.secondTeamFlag}`} height={32} width={32} />
-                  <Typography
-                    variant={downSm ? 'caption' : 'subtitle2'}
-                    sx={{ textAlign: 'center' }}
-                  >
+                  <Typography variant={downSm ? 'caption' : 'subtitle2'} sx={{ textAlign: 'center' }}>
                     {match?.topTeamName === match?.secondTeamName ? (
                       <mark>
                         <strong>{match?.secondTeamName}</strong>

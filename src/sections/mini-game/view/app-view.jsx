@@ -30,6 +30,8 @@ import useData from 'src/hooks/data';
 import useAuth from 'src/hooks/auth';
 import useEventBus from 'src/hooks/event-bus';
 
+import request from 'src/utils/request';
+
 import { MatchAPI } from 'src/api';
 
 import Label from 'src/components/label';
@@ -45,13 +47,12 @@ export default function AppView() {
   const { user } = useAuth();
 
   const [match, setMatch] = useState();
+  const [jackpot, setJackpot] = useState(0);
   const [tab, setTab] = useState(0);
 
-  const {
-    items: predictions,
-    pagination: predictionPagination,
-    isLoading: isLoadingPrediction,
-  } = useData(match && user ? `/predictions?populate=*&filters[match][id][$eq]=${match.id}` : null);
+  const { items: predictions, isLoading: isLoadingPrediction } = useData(
+    match && user ? `/predictions?populate=*&filters[match][id][$eq]=${match.id}` : null
+  );
 
   const { items: predictionResults, isLoading: isLoadingPredictionResult } = useData(
     match && user
@@ -75,11 +76,19 @@ export default function AppView() {
       : null
   );
 
+  const loadJackpot = () => {
+    request.get('/jackpot').then((res) => {
+      if (res.data) {
+        setJackpot(res.data?.data?.amount);
+      }
+    });
+  };
+
   const onOpenPredictionDialog = () => {
     if (_.isNil(user)) {
       return $emit('@dialog.auth.action.open');
     }
-    $emit('@dialog.prediction.action.open', { match });
+    $emit('@dialog.prediction.action.open', { match, callback: loadJackpot });
     setTab(0);
   };
 
@@ -99,6 +108,7 @@ export default function AppView() {
     };
 
     loadComingMatch();
+    loadJackpot();
   }, []);
 
   useEffect(() => {
@@ -170,7 +180,7 @@ export default function AppView() {
                     fontFamily: 'Jaro',
                   }}
                 >
-                  {predictionPagination?.total || 0}
+                  {jackpot || 0}
                 </Typography>
 
                 <Iconify icon="material-symbols:poker-chip" sx={{ width: 32, height: 32 }} />
@@ -202,13 +212,7 @@ export default function AppView() {
             <CardHeader
               sx={{ p: 0, borderBottom: `1px dashed ${grey[200]}` }}
               title={
-                <Tabs
-                  value={tab}
-                  onChange={onChangeTab}
-                  centered
-                  textColor="secondary"
-                  indicatorColor="secondary"
-                >
+                <Tabs value={tab} onChange={onChangeTab} centered textColor="secondary" indicatorColor="secondary">
                   <Tab label="Danh sách dự đoán" />
                   <Tab label="Kẻ chiến thắng" />
                 </Tabs>
@@ -222,34 +226,20 @@ export default function AppView() {
                       <Fragment key={prediction.id}>
                         <ListItem alignItems="flex-start">
                           <ListItemAvatar>
-                            <Avatar
-                              alt={prediction?.user?.username}
-                              src={prediction?.user?.avatarUrl}
-                            />
+                            <Avatar alt={prediction?.user?.username} src={prediction?.user?.avatarUrl} />
                           </ListItemAvatar>
                           <ListItemText
                             primary={
                               <Stack direction="row" alignItems="center" spacing={0.7}>
-                                <Typography variant="subtitle2">
-                                  {prediction?.user?.username}
-                                </Typography>
+                                <Typography variant="subtitle2">{prediction?.user?.username}</Typography>
                                 <Typography variant="caption">đã dự đoán</Typography>
                               </Stack>
                             }
                             secondary={
-                              <Grid2
-                                container
-                                justifyContent="flex-start"
-                                alignItems="center"
-                                spacing={1}
-                              >
+                              <Grid2 container justifyContent="flex-start" alignItems="center" spacing={1}>
                                 <Grid2 item lg="auto" md="auto" sm="auto" xs="auto">
                                   <Stack alignItems="center">
-                                    <Iconify
-                                      icon={`circle-flags:${prediction?.match?.firstTeamFlag}`}
-                                      height={20}
-                                      width={20}
-                                    />
+                                    <Iconify icon={`circle-flags:${prediction?.match?.firstTeamFlag}`} height={20} width={20} />
                                   </Stack>
                                 </Grid2>
 
@@ -291,33 +281,19 @@ export default function AppView() {
                       <Fragment key={prediction.id}>
                         <ListItem alignItems="center">
                           <ListItemAvatar>
-                            <Avatar
-                              alt={prediction?.winner?.username}
-                              src={prediction?.winner?.avatarUrl}
-                            />
+                            <Avatar alt={prediction?.winner?.username} src={prediction?.winner?.avatarUrl} />
                           </ListItemAvatar>
                           <ListItemText
                             primary={
                               <Stack direction="row" alignItems="center" spacing={0.7}>
-                                <Typography variant="subtitle2">
-                                  {prediction?.winner?.username}
-                                </Typography>
+                                <Typography variant="subtitle2">{prediction?.winner?.username}</Typography>
                               </Stack>
                             }
                             secondary={
-                              <Grid2
-                                container
-                                justifyContent="flex-start"
-                                alignItems="center"
-                                spacing={1}
-                              >
+                              <Grid2 container justifyContent="flex-start" alignItems="center" spacing={1}>
                                 <Grid2 item lg="auto" md="auto" sm="auto" xs="auto">
                                   <Stack alignItems="center">
-                                    <Iconify
-                                      icon={`circle-flags:${prediction?.match?.firstTeamFlag}`}
-                                      height={20}
-                                      width={20}
-                                    />
+                                    <Iconify icon={`circle-flags:${prediction?.match?.firstTeamFlag}`} height={20} width={20} />
                                   </Stack>
                                 </Grid2>
 
@@ -341,10 +317,7 @@ export default function AppView() {
                               </Grid2>
                             }
                           />
-                          <Label
-                            color="warning"
-                            endIcon={<Iconify icon="material-symbols:poker-chip" />}
-                          >
+                          <Label color="warning" endIcon={<Iconify icon="material-symbols:poker-chip" />}>
                             + {prediction.prize}
                           </Label>
                         </ListItem>
@@ -354,9 +327,7 @@ export default function AppView() {
 
                   {isLoadingPredictionResult && <Loader />}
 
-                  {!isLoadingPredictionResult && !predictionResults?.length && (
-                    <Empty text="Chưa có dữ liệu" />
-                  )}
+                  {!isLoadingPredictionResult && !predictionResults?.length && <Empty text="Chưa có dữ liệu" />}
                 </List>
               )}
             </CardContent>
