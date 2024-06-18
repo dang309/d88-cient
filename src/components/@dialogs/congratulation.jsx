@@ -1,14 +1,15 @@
 import _ from 'lodash';
 import * as React from 'react';
+import { useSWRConfig } from 'swr';
 
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
-import { Stack, Typography, IconButton } from '@mui/material';
+import { Stack, Divider, Typography, IconButton } from '@mui/material';
 
 import useEventBus from 'src/hooks/event-bus';
 
-import { PredictionAPI } from 'src/api';
+import { BetAPI, PredictionAPI } from 'src/api';
 
 import Label from '../label';
 import Iconify from '../iconify';
@@ -16,9 +17,11 @@ import { MatchVersus } from '../match-versus';
 
 export default function CongratulationDialog() {
   const { $on } = useEventBus();
+  const { mutate } = useSWRConfig();
 
   const [open, setOpen] = React.useState(false);
   const [predictions, setPredictions] = React.useState();
+  const [bets, setBets] = React.useState();
 
   const totalPrize = React.useMemo(() => {
     if (_.isNil(predictions) || _.isEmpty(predictions)) return 0;
@@ -26,35 +29,56 @@ export default function CongratulationDialog() {
     return predictions.reduce((sum, prediction) => sum + prediction.prize, 0);
   }, [predictions]);
 
+  const totalProfit = React.useMemo(() => {
+    if (_.isNil(bets) || _.isEmpty(bets)) return 0;
+
+    return bets.reduce((sum, prediction) => sum + prediction.profit, 0);
+  }, [bets]);
+
   const onOpen = () => {
     setOpen(true);
   };
 
   const onClose = async () => {
-    if (_.isNil(predictions)) return;
-
     const promises = [];
 
-    predictions.forEach((prediction) => {
-      promises.push(
-        PredictionAPI.update(prediction.id, {
-          isCelebrated: true,
-        })
-      );
-    });
+    if (!_.isNil(predictions) && !_.isEmpty(predictions)) {
+      predictions.forEach((prediction) => {
+        promises.push(
+          PredictionAPI.update(prediction.id, {
+            isCelebrated: true,
+          })
+        );
+      });
+    }
+    if (!_.isNil(bets) && !_.isEmpty(bets)) {
+      bets.forEach((bet) => {
+        promises.push(
+          BetAPI.update(bet.id, {
+            isCelebrated: true,
+          })
+        );
+      });
+    }
 
-    return Promise.all(promises).then(() => {
-      setOpen(false);
-    });
+    return Promise.all(promises)
+      .then(() => {
+        setOpen(false);
+      })
+      .then(() => {
+        mutate((key) => typeof key === 'string' && key.startsWith('/predictions'));
+        mutate((key) => typeof key === 'string' && key.startsWith('/bets'));
+      });
   };
 
   React.useEffect(() => {
     $on('@dialog.congratulation.action.open', (data) => {
-      if (_.isNil(data) || _.isNil(data.predictions)) return;
-      setPredictions(data.predictions);
+      if (_.isNil(data)) return;
+      if (!_.isNil(data.predictions)) setPredictions(data.predictions);
+      if (!_.isNil(data.bets)) setBets(data.bets);
       onOpen();
     });
-  }, [$on, predictions]);
+  }, [$on, predictions, bets]);
 
   React.useEffect(() => {
     if (!window.confetti || !open) return;
@@ -116,24 +140,42 @@ export default function CongratulationDialog() {
         </IconButton>
       </DialogTitle>
       <DialogContent>
-        <Stack alignItems="center" spacing={1}>
-          <Typography variant="subtitle1">Bạn đã dự đoán đúng tỉ số trận đấu</Typography>
-          {predictions &&
-            predictions.map((prediction) => (
-              <MatchVersus
-                match={prediction?.match}
-                showResult
-                sx={{
-                  spacing: 4,
-                }}
-              />
-            ))}
-        </Stack>
+        <Stack spacing={1} divider={<Divider />}>
+          {!_.isNil(bets) && !_.isEmpty(bets) && (
+            <Stack alignItems="center" spacing={1}>
+              <Typography variant="subtitle1">Bạn đã dành chiến thắng trận đấu</Typography>
+              {bets.map((item) => (
+                <MatchVersus
+                  match={item?.match}
+                  showResult
+                  sx={{
+                    spacing: 4,
+                  }}
+                />
+              ))}
+              <Label color="warning" endIcon={<Iconify icon="material-symbols:poker-chip" />}>
+                + {totalProfit}
+              </Label>
+            </Stack>
+          )}
 
-        <Stack alignItems="center">
-          <Label color="warning" endIcon={<Iconify icon="material-symbols:poker-chip" />}>
-            + {totalPrize}
-          </Label>
+          {!_.isNil(predictions) && !_.isEmpty(predictions) && (
+            <Stack alignItems="center" spacing={1}>
+              <Typography variant="subtitle1">Bạn đã dự đoán đúng tỉ số trận đấu</Typography>
+              {predictions.map((item) => (
+                <MatchVersus
+                  match={item?.match}
+                  showResult
+                  sx={{
+                    spacing: 4,
+                  }}
+                />
+              ))}
+              <Label color="warning" endIcon={<Iconify icon="material-symbols:poker-chip" />}>
+                + {totalPrize}
+              </Label>
+            </Stack>
+          )}
         </Stack>
       </DialogContent>
     </Dialog>

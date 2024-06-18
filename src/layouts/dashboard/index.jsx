@@ -28,7 +28,7 @@ export default function DashboardLayout({ children }) {
   const { user } = useAuth();
   const { $emit } = useEventBus();
 
-  const { items: predictions, mutate } = useData(
+  const { items: predictions } = useData(
     user &&
       `/predictions?${qs.stringify({
         fields: ['prize', 'isCorrect'],
@@ -43,7 +43,40 @@ export default function DashboardLayout({ children }) {
           ],
         },
         populate: {
-          winner: {
+          user: {
+            fields: ['id'],
+            filters: {
+              id: user.id,
+            },
+          },
+          match: {
+            fields: ['id', 'firstTeamName', 'firstTeamFlag', 'secondTeamName', 'secondTeamFlag'],
+            populate: {
+              result: true,
+            },
+          },
+        },
+      })}`
+  );
+
+  const { items: bets } = useData(
+    user &&
+      `/bets?${qs.stringify({
+        fields: ['id', 'isCelebrated', 'profit'],
+        filters: {
+          $and: [
+            {
+              profit: {
+                $gt: 0,
+              },
+            },
+            {
+              isCelebrated: false,
+            },
+          ],
+        },
+        populate: {
+          user: {
             fields: ['id'],
             filters: {
               id: user.id,
@@ -62,9 +95,10 @@ export default function DashboardLayout({ children }) {
   const [openNav, setOpenNav] = useState(false);
 
   const onCheckPredictionWinner = useCallback(() => {
-    if (_.isNil(predictions) || _.isEmpty(predictions)) return;
-    return $emit('@dialog.congratulation.action.open', { predictions, mutate });
-  }, [predictions, mutate, $emit]);
+    if (_.isNil(predictions) && _.isNil(bets)) return;
+    if (_.isEmpty(predictions) && _.isEmpty(bets)) return;
+    return $emit('@dialog.congratulation.action.open', { predictions, bets });
+  }, [predictions, bets, $emit]);
 
   useEffect(() => {
     onCheckPredictionWinner();

@@ -13,8 +13,10 @@ class BetAPI {
     });
   }
 
-  static async update(id, body) {
-    return request.patch(`${BetAPI.endPoint}/${id}`, body);
+  static async update(id, data) {
+    return request.put(`${BetAPI.endPoint}/${id}`, {
+      data,
+    });
   }
 
   static async delete(id) {
