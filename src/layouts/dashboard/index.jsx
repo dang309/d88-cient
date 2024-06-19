@@ -40,14 +40,14 @@ export default function DashboardLayout({ children }) {
             {
               isCelebrated: false,
             },
+            {
+              user: user.id,
+            },
           ],
         },
         populate: {
           user: {
             fields: ['id'],
-            filters: {
-              id: user.id,
-            },
           },
           match: {
             fields: ['id', 'firstTeamName', 'firstTeamFlag', 'secondTeamName', 'secondTeamFlag'],
@@ -73,14 +73,14 @@ export default function DashboardLayout({ children }) {
             {
               isCelebrated: false,
             },
+            {
+              user: user.id,
+            },
           ],
         },
         populate: {
           user: {
             fields: ['id'],
-            filters: {
-              id: user.id,
-            },
           },
           match: {
             fields: ['id', 'firstTeamName', 'firstTeamFlag', 'secondTeamName', 'secondTeamFlag'],
