@@ -9,6 +9,8 @@ import useAuth from 'src/hooks/auth';
 import useData from 'src/hooks/data';
 import useEventBus from 'src/hooks/event-bus';
 
+import { BetAPI, PredictionAPI } from 'src/api';
+
 import BetDialog from 'src/components/@dialogs/bet';
 import RechargeDialog from 'src/components/@dialogs/recharge';
 import BetDetailDialog from 'src/components/@dialogs/bet-detail';
@@ -26,9 +28,9 @@ import Header from './header';
 
 export default function DashboardLayout({ children }) {
   const { user } = useAuth();
-  const { $emit } = useEventBus();
+  const { $emit, $on } = useEventBus();
 
-  const { items: predictions } = useData(
+  const { items: predictions, mutate: mutatePredictions } = useData(
     user &&
       `/predictions?${qs.stringify({
         fields: ['prize', 'isCorrect'],
@@ -59,7 +61,7 @@ export default function DashboardLayout({ children }) {
       })}`
   );
 
-  const { items: bets } = useData(
+  const { items: bets, mutate: mutateBets } = useData(
     user &&
       `/bets?${qs.stringify({
         fields: ['id', 'isCelebrated', 'profit'],
@@ -93,16 +95,50 @@ export default function DashboardLayout({ children }) {
   );
 
   const [openNav, setOpenNav] = useState(false);
+  const [forceCloseCelebration, setForceCloseCelebration] = useState(false);
+
+  const onTurnOffCelebration = useCallback(async () => {
+    setForceCloseCelebration(true);
+    if (!_.isNil(predictions) && !_.isEmpty(predictions)) {
+      const promises = [];
+      predictions.forEach((prediction) => {
+        promises.push(
+          PredictionAPI.update(prediction.id, {
+            isCelebrated: true,
+          })
+        );
+      });
+      await Promise.all(promises);
+      mutatePredictions();
+    }
+    if (!_.isNil(bets) && !_.isEmpty(bets)) {
+      const promises = [];
+      bets.forEach((bet) => {
+        promises.push(
+          BetAPI.update(bet.id, {
+            isCelebrated: true,
+          })
+        );
+      });
+      await Promise.all(promises);
+      mutateBets();
+    }
+  }, [predictions, bets, mutateBets, mutatePredictions]);
 
   const onCheckPredictionWinner = useCallback(() => {
     if (_.isNil(predictions) && _.isNil(bets)) return;
     if (_.isEmpty(predictions) && _.isEmpty(bets)) return;
-    return $emit('@dialog.congratulation.action.open', { predictions, bets });
-  }, [predictions, bets, $emit]);
+    if (forceCloseCelebration) return;
+    return $emit('@dialog.congratulation.action.open', { predictions, bets, callback: onTurnOffCelebration });
+  }, [predictions, bets, onTurnOffCelebration, $emit, forceCloseCelebration]);
 
   useEffect(() => {
     onCheckPredictionWinner();
   }, [onCheckPredictionWinner]);
+
+  useEffect(() => {
+    $on('@dialog.congratulation.action.close', onTurnOffCelebration);
+  }, [$on, onTurnOffCelebration]);
 
   return (
     <>

@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import * as React from 'react';
-import { useSWRConfig } from 'swr';
 
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -9,15 +8,12 @@ import { Stack, Divider, Typography, IconButton } from '@mui/material';
 
 import useEventBus from 'src/hooks/event-bus';
 
-import { BetAPI, PredictionAPI } from 'src/api';
-
 import Label from '../label';
 import Iconify from '../iconify';
 import { MatchVersus } from '../match-versus';
 
 export default function CongratulationDialog() {
-  const { $on } = useEventBus();
-  const { mutate } = useSWRConfig();
+  const { $emit, $on } = useEventBus();
 
   const [open, setOpen] = React.useState(false);
   const [predictions, setPredictions] = React.useState();
@@ -40,35 +36,8 @@ export default function CongratulationDialog() {
   };
 
   const onClose = async () => {
-    const promises = [];
-
-    if (!_.isNil(predictions) && !_.isEmpty(predictions)) {
-      predictions.forEach((prediction) => {
-        promises.push(
-          PredictionAPI.update(prediction.id, {
-            isCelebrated: true,
-          })
-        );
-      });
-    }
-    if (!_.isNil(bets) && !_.isEmpty(bets)) {
-      bets.forEach((bet) => {
-        promises.push(
-          BetAPI.update(bet.id, {
-            isCelebrated: true,
-          })
-        );
-      });
-    }
-
-    return Promise.all(promises)
-      .then(() => {
-        setOpen(false);
-      })
-      .then(() => {
-        mutate((key) => typeof key === 'string' && key.startsWith('/predictions'));
-        mutate((key) => typeof key === 'string' && key.startsWith('/bets'));
-      });
+    setOpen(false);
+    return $emit('@dialog.congratulation.action.close');
   };
 
   React.useEffect(() => {
