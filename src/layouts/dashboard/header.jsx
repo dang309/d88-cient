@@ -19,6 +19,7 @@ import { useResponsive } from 'src/hooks/use-responsive';
 import { bgBlur } from 'src/theme/css';
 
 import Logo from 'src/components/logo';
+import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 
 import { HEADER } from './config-layout';
@@ -94,14 +95,18 @@ export default function Header({ onOpenNav }) {
       >
         {user ? (
           <>
-            <Button
+            <Label
               color="warning"
               variant="outlined"
-              onClick={onOpenRechargeDialog}
+              disabled
               endIcon={<Iconify icon="material-symbols:poker-chip" />}
+              sx={{
+                width: 64,
+                height: 32
+              }}
             >
               {user?.balance || 0}
-            </Button>
+            </Label>
             {/* <NotificationsPopover /> */}
             <AccountPopover />
           </>

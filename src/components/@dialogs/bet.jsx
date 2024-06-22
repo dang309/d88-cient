@@ -388,16 +388,6 @@ export default function BetDialog(props) {
 
                   <Label endIcon={<Iconify icon="material-symbols:poker-chip" />}>{fRound(user?.balance)}</Label>
                 </Stack>
-
-                <Button
-                  endIcon={<Iconify icon="material-symbols:poker-chip" />}
-                  variant="outlined"
-                  color="warning"
-                  size="small"
-                  onClick={onOpenRechargeDialog}
-                >
-                  Nạp thêm
-                </Button>
               </Stack>
             )}
           </Divider>

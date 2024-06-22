@@ -12,7 +12,6 @@ import useEventBus from 'src/hooks/event-bus';
 import { BetAPI, PredictionAPI } from 'src/api';
 
 import BetDialog from 'src/components/@dialogs/bet';
-import RechargeDialog from 'src/components/@dialogs/recharge';
 import BetDetailDialog from 'src/components/@dialogs/bet-detail';
 import PredictionDialog from 'src/components/@dialogs/prediction';
 import ConfirmationDialog from 'src/components/@dialogs/confirmation';
@@ -156,7 +155,6 @@ export default function DashboardLayout({ children }) {
 
         <Main>{children}</Main>
 
-        <RechargeDialog />
         <AuthenticationDialog />
         <BetDialog />
         <PredictionDialog />
