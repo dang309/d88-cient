@@ -2,12 +2,8 @@ import _ from 'lodash';
 import * as React from 'react';
 import { useSnackbar } from 'notistack';
 
-import { LoadingButton } from '@mui/lab';
-import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import {
   Tab,
@@ -15,17 +11,12 @@ import {
   List,
   Tabs,
   Stack,
-  Slider,
   Divider,
   ListItem,
-  TextField,
   Typography,
   IconButton,
-  FormControl,
   ToggleButton,
   ListSubheader,
-  InputAdornment,
-  FormHelperText,
   ToggleButtonGroup,
 } from '@mui/material';
 
@@ -248,7 +239,6 @@ export default function BetDialog(props) {
       disableScrollLock
     >
       <DialogTitle>
-        Đặt cược
         <IconButton
           aria-label="close"
           onClick={onClose}
@@ -392,95 +382,10 @@ export default function BetDialog(props) {
             )}
           </Divider>
 
-          <Grid2 container spacing={2} justifyContent="space-evenly" alignItems="center" sx={{ pt: 2 }}>
-            <Grid2 item lg={6} md={6} sm={10} xs={10}>
-              <Slider
-                value={betAmount}
-                min={MIN_BET_AMOUNT}
-                max={MAX_BET_AMOUNT}
-                valueLabelDisplay="auto"
-                marks={[
-                  {
-                    value: MIN_BET_AMOUNT,
-                    label: (
-                      <Button
-                        color="secondary"
-                        size="small"
-                        startIcon={<Iconify icon="mdi:dog" />}
-                        onClick={() => onChangeBetAmount(MIN_BET_AMOUNT)}
-                      >
-                        Cún
-                      </Button>
-                    ),
-                  },
-                  {
-                    value: Math.floor((MIN_BET_AMOUNT + MAX_BET_AMOUNT) / 2),
-                    label: (
-                      <Button
-                        color="warning"
-                        size="small"
-                        startIcon={<Iconify icon="mdi:human-male" />}
-                        onClick={() => onChangeBetAmount((MIN_BET_AMOUNT + MAX_BET_AMOUNT) / 2)}
-                      >
-                        Người
-                      </Button>
-                    ),
-                  },
-                  {
-                    value: MAX_BET_AMOUNT,
-                    label: (
-                      <Button
-                        color="error"
-                        size="small"
-                        startIcon={<Iconify icon="mdi:emoticon-devil" />}
-                        onClick={() => onChangeBetAmount(MAX_BET_AMOUNT)}
-                      >
-                        Quỷ
-                      </Button>
-                    ),
-                  },
-                ]}
-                onChange={(_e, newVal) => onChangeBetAmount(newVal)}
-              />
-            </Grid2>
-
-            <Grid2 item lg={4} md={4} sm={8} xs={10}>
-              <FormControl fullWidth>
-                <TextField
-                  value={betAmount}
-                  variant="outlined"
-                  label="Nhập tiền cược"
-                  required
-                  error={Boolean(err)}
-                  helperText={err}
-                  fullWidth
-                  onChange={(e) => onChangeBetAmount(e.target.value)}
-                  onBlur={onBlurBetAmount}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="start">
-                        <Iconify icon="material-symbols:poker-chip" />
-                      </InputAdornment>
-                    ),
-                  }}
-                  inputProps={{
-                    min: MIN_BET_AMOUNT,
-                    max: MAX_BET_AMOUNT,
-                    step: 1,
-                    type: 'number',
-                  }}
-                />
-                <FormHelperText component="div" />
-              </FormControl>
-            </Grid2>
-          </Grid2>
+          
         </Stack>
       </DialogContent>
-      <DialogActions>
-        <LoadingButton type="submit" fullWidth variant="contained" color="info" loading={isLoading}>
-          Đặt cược
-        </LoadingButton>
-      </DialogActions>
+      
     </Dialog>
   );
 }
