@@ -8,7 +8,7 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import { useTheme } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
-import { Tab, Link, Tabs, Alert, Button, Container, Typography } from '@mui/material';
+import { Tab, Link, Tabs, Alert, Container, Typography } from '@mui/material';
 
 import { RouterLink } from 'src/routes/components';
 
@@ -19,12 +19,10 @@ import { useResponsive } from 'src/hooks/use-responsive';
 import { bgBlur } from 'src/theme/css';
 
 import Logo from 'src/components/logo';
-import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 
 import { HEADER } from './config-layout';
 import navConfig from './config-navigation';
-import AccountPopover from './common/account-popover';
 
 // ----------------------------------------------------------------------
 
@@ -92,30 +90,7 @@ export default function Header({ onOpenNav }) {
             xs: 'auto',
           },
         }}
-      >
-        {user ? (
-          <>
-            <Label
-              color="warning"
-              variant="outlined"
-              disabled
-              endIcon={<Iconify icon="material-symbols:poker-chip" />}
-              sx={{
-                width: 64,
-                height: 32
-              }}
-            >
-              {user?.balance || 0}
-            </Label>
-            {/* <NotificationsPopover /> */}
-            <AccountPopover />
-          </>
-        ) : (
-          <Button variant="contained" onClick={onOpenAuthDialog} size={downLg ? 'small' : 'medium'}>
-            Đăng nhập
-          </Button>
-        )}
-      </Stack>
+       />
     </>
   );
 
